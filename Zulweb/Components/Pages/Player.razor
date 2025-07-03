@@ -17,6 +17,13 @@
 }
 
 <div class="container-fluid">
+    @if (Setlist.RehearsalMode)
+    {
+        <div class="alert alert-warning text-center rounded-0 py-2" role="alert">
+            <strong>REHEARSAL MODE</strong>
+        </div>
+    }
+
     <div class="row">
 
         <div class="btn-group btn-group-lg my-4 col-sm-12 col-md-8 mx-auto" role="group" aria-label="Basic example">
@@ -39,48 +46,61 @@
             </button>
             <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                 <li><a class="dropdown-item" @onclick="() => ResetSession()">Reset Session</a></li>
+                <li><a class="dropdown-item" @onclick="() => Setlist.RehearsalMode = !Setlist.RehearsalMode">Toggle
+                        Rehearsal Mode</a></li>
             </ul>
         </div>
 
         <ul class="list-group col-sm-12 col-md-8 mx-auto">
             @foreach (var item in Setlist.Items)
             {
-                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border @(GetBorderColor(item)) border-3">
-                    <div>
-                        <h5>@item.RegionName</h5>
-                        <p>
-                            <span class="small">@item.Length.ToString(@"hh\:mm\:ss")</span>
-                        </p>
-                        <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-success @(Reaper.Playing ? "disabled" : string.Empty)"
-                                    @onclick="() => PlayRegion(item)">
-                                <i class="bi bi-play-circle"></i>
-                            </button>
-                            <button type="button" class="btn btn-warning @(Reaper.Playing ? "disabled" : string.Empty)"
-                                    @onclick="() => Enqueue(item)">
-                                <i class="bi bi-arrow-bar-right"></i>
-                            </button>
-                            @if (_expandedRegion != item)
-                            {
-                                <button class="btn btn-outline-secondary @(Reaper.Playing ? "disabled" : string.Empty)"
-                                        @onclick="() => ExpandRegion(item)">
-                                    <i class="bi bi-chevron-expand"></i>
-                                    Expand
+                <a class="list-group-item list-group-item-action d-flex flex-column align-items-start border @(GetBorderColor(item)) border-3">
+                    <div class="d-flex justify-content-between align-items-center w-100">
+                        <div class="w-100">
+                            <h5 class="d-flex justify-content-between align-items-center">
+                                @item.RegionName
+                                <span class="badge rounded-pill border-primary border text-secondary">
+                                    @item.Length.ToString(@"hh\:mm\:ss")
+                                </span>
+                            </h5>
+                            <div class="btn-group" role="group">
+                                <button type="button"
+                                        class="btn btn-success @(Reaper.Playing ? "disabled" : string.Empty)"
+                                        @onclick="() => PlayRegion(item)">
+                                    <i class="bi bi-play-circle"></i>
                                 </button>
-                            }
-                            else
-                            {
-                                <button class="btn btn-outline-secondary @(Reaper.Playing ? "disabled" : string.Empty)"
-                                        @onclick="() => CollapseRegion(item)">
-                                    <i class="bi bi-chevron-contract"></i>
-                                    Collapse
+                                <button type="button"
+                                        class="btn btn-warning @(Reaper.Playing ? "disabled" : string.Empty)"
+                                        @onclick="() => Enqueue(item)">
+                                    <i class="bi bi-arrow-bar-right"></i>
                                 </button>
-                            }
+                                @if (Setlist.RehearsalMode)
+                                {
+                                    @if (_expandedRegion != item)
+                                    {
+                                        <button
+                                            class="btn btn-outline-secondary @(Reaper.Playing ? "disabled" : string.Empty)"
+                                            @onclick="() => ExpandRegion(item)">
+                                            <i class="bi bi-chevron-expand"></i>
+                                            Expand
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button
+                                            class="btn btn-outline-secondary @(Reaper.Playing ? "disabled" : string.Empty)"
+                                            @onclick="() => CollapseRegion(item)">
+                                            <i class="bi bi-chevron-contract"></i>
+                                            Collapse
+                                        </button>
+                                    }
+                                }
+                            </div>
                         </div>
-                        <div class="progress my-3" role="progressbar">
-                            <div class="progress-bar progress-bar-striped bg-info"
-                                 style="width: @(GetPercentage(item))%"></div>
-                        </div>
+                    </div>
+                    <div class="progress my-3 w-100" role="progressbar">
+                        <div class="progress-bar progress-bar-striped bg-info"
+                             style="width: @(GetPercentage(item))%"></div>
                     </div>
                 </a>
                 @if (_expandedRegion == item)

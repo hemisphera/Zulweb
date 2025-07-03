@@ -19,6 +19,7 @@ public class SetlistController
 
   public string? Filename { get; private set; }
   public bool Initialized { get; private set; }
+  public bool RehearsalMode { get; set; }
 
 
   public SetlistController(ReaperInterface reaper)
@@ -26,6 +27,7 @@ public class SetlistController
     _reaper = reaper;
     _reaper.RegionCompleted += (s, e) =>
     {
+      if (RehearsalMode) return;
       Items = Items.Where(i => !i.RegionName.Equals(e.Name)).ToArray();
     };
   }
