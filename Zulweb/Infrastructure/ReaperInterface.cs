@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using Hsp.Osc;
 using Zulweb.Infrastructure.EventArgs;
 using Zulweb.Infrastructure.Settings;
@@ -34,6 +35,7 @@ public sealed class ReaperInterface : IAsyncDisposable
     {
       if (value == _playing) return;
       _playing = value;
+      _lastPlayStateChange = Stopwatch.GetTimestamp();
       PlayStateChanged?.Invoke(this, _playing);
     }
   }
@@ -47,10 +49,13 @@ public sealed class ReaperInterface : IAsyncDisposable
   private OscUdpServer? _receiver;
   private ReaperRegion? _currentRegion;
   private bool _playing;
+  private long _lastPlayStateChange;
+  private readonly TimeSpan _autoStopAfter = TimeSpan.FromMilliseconds(500);
 
 
   public event EventHandler<RegionChangedEventArgs>? RegionChanged;
   public event EventHandler<bool>? PlayStateChanged;
+  public event EventHandler<ReaperRegion>? RegionCompleted;
 
 
   // ReSharper disable once UnusedMember.Local
@@ -102,9 +107,22 @@ public sealed class ReaperInterface : IAsyncDisposable
   {
     if (!int.TryParse(arg.Message.Atoms[0].StringValue, out var id)) id = -1;
     var oldRegion = CurrentRegion;
-    CurrentRegion = GetRegionById(id);
-    if (Playing && oldRegion != CurrentRegion && oldRegion != null)
-      Task.Run(async () => { await StopAndMoveCursor(); });
+    var newRegion = GetRegionById(id);
+    CurrentRegion = newRegion;
+    if (CanAutoStop() && oldRegion != newRegion && oldRegion != null)
+    {
+      Task.Run(async () =>
+      {
+        await StopAndMoveCursor();
+        RegionCompleted?.Invoke(this, oldRegion);
+      });
+    }
+  }
+
+  private bool CanAutoStop()
+  {
+    if (!Playing) return false;
+    return Stopwatch.GetTimestamp() - _lastPlayStateChange > _autoStopAfter.Ticks;
   }
 
   // ReSharper disable once UnusedMember.Local

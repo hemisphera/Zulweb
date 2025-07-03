@@ -8,80 +8,97 @@
 
 <PageTitle>Setlist</PageTitle>
 
+@if (!Setlist.Initialized)
+{
+    <div class="col-sm-12 col-md-8 mx-auto">
+        <em>Loading ...</em>
+    </div>
+    return;
+}
+
 <div class="container-fluid">
     <div class="row">
 
-        <div class="btn-group btn-group-lg my-4" role="group" aria-label="Basic example">
+        <div class="btn-group btn-group-lg my-4 col-sm-12 col-md-8 mx-auto" role="group" aria-label="Basic example">
+            <button type="button" class="btn btn-warning"
+                    @onclick="() => Setlist.PlayNext()">
+                Next
+            </button>
             <button type="button" class="btn @(Reaper.Playing ? "btn-outline-danger" : "btn-danger")"
                     @onclick="() => Reaper.Stop()">
                 <i class="bi bi-stop-circle"></i>
-            </button>
-            <button type="button" class="btn btn-outline-secondary"
-                    @onclick="() => Reaper.Pause()">
-                <i class="bi bi-pause-circle"></i>
             </button>
             <button type="button" class="btn @(Reaper.Playing ? "btn-success" : "btn-outline-success")"
                     @onclick="() => Reaper.Start()">
                 <i class="bi bi-play-circle"></i>
             </button>
-            <button type="button" class="btn btn-outline-secondary disabled">@_time.ToString("hh\\:mm\\:ss")</button>
+
+            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                <i class="bi bi-list"></i>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <li><a class="dropdown-item" @onclick="() => ResetSession()">Reset Session</a></li>
+            </ul>
         </div>
 
-        @if (_items != null)
-        {
-            <ul class="list-group col-sm-12 col-md-8 mx-auto">
-                @foreach (var item in _items)
-                {
-                    <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border @(_currentRegion == item ? "border-success" : string.Empty) border-3">
-                        <div>
-                            <h5>@item.RegionName</h5>
-                            <p>
-                                <span class="small">@item.Length.ToString(@"hh\:mm\:ss")</span>
-                            </p>
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-success" @onclick="() => PlayRegion(item)">
-                                    <i class="bi bi-play-circle"></i>
-                                    Play from start
+        <ul class="list-group col-sm-12 col-md-8 mx-auto">
+            @foreach (var item in Setlist.Items)
+            {
+                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border @(GetBorderColor(item)) border-3">
+                    <div>
+                        <h5>@item.RegionName</h5>
+                        <p>
+                            <span class="small">@item.Length.ToString(@"hh\:mm\:ss")</span>
+                        </p>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-success @(Reaper.Playing ? "disabled" : string.Empty)"
+                                    @onclick="() => PlayRegion(item)">
+                                <i class="bi bi-play-circle"></i>
+                            </button>
+                            <button type="button" class="btn btn-warning @(Reaper.Playing ? "disabled" : string.Empty)"
+                                    @onclick="() => Enqueue(item)">
+                                <i class="bi bi-arrow-bar-right"></i>
+                            </button>
+                            @if (_expandedRegion != item)
+                            {
+                                <button class="btn btn-outline-secondary @(Reaper.Playing ? "disabled" : string.Empty)"
+                                        @onclick="() => ExpandRegion(item)">
+                                    <i class="bi bi-chevron-expand"></i>
+                                    Expand
                                 </button>
-                                @if (_expandedRegion != item)
-                                {
-                                    <button class="btn btn-outline-secondary" @onclick="() => ExpandRegion(item)">
-                                        <i class="bi bi-chevron-expand"></i>
-                                        Expand
-                                    </button>
-                                }
-                                else
-                                {
-                                    <button class="btn btn-outline-secondary" @onclick="() => CollapseRegion(item)">
-                                        <i class="bi bi-chevron-contract"></i>
-                                        Collapse
-                                    </button>
-                                }
-                            </div>
-                            <div class="progress my-3" role="progressbar">
-                                <div class="progress-bar progress-bar-striped bg-info"
-                                     style="width: @(GetPercentage(item))%"></div>
-                            </div>
+                            }
+                            else
+                            {
+                                <button class="btn btn-outline-secondary @(Reaper.Playing ? "disabled" : string.Empty)"
+                                        @onclick="() => CollapseRegion(item)">
+                                    <i class="bi bi-chevron-contract"></i>
+                                    Collapse
+                                </button>
+                            }
                         </div>
-                    </a>
-                    @if (_expandedRegion == item)
+                        <div class="progress my-3" role="progressbar">
+                            <div class="progress-bar progress-bar-striped bg-info"
+                                 style="width: @(GetPercentage(item))%"></div>
+                        </div>
+                    </div>
+                </a>
+                @if (_expandedRegion == item)
+                {
+                    @foreach (var marker in _markers)
                     {
-                        @foreach (var marker in _markers)
-                        {
-                            <a class="list-group-item list-group-item-action list-group-item-secondary"
-                               @onclick="() => GoToMarker(marker)" @onclick:preventDefault>
-                                @marker.Name
-                            </a>
-                        }
+                        <a class="list-group-item list-group-item-action list-group-item-secondary"
+                           @onclick="() => GoToMarker(marker)" @onclick:preventDefault>
+                            @marker.Name
+                        </a>
                     }
                 }
-            </ul>
-        }
+            }
+        </ul>
     </div>
 </div>
 
 @code {
-    private LoadedSetlistItem[]? _items;
     private ReaperMarker[] _markers = [];
     private LoadedSetlistItem? _expandedRegion;
     private CancellationTokenSource? _cts;
@@ -108,23 +125,19 @@
     private async Task Tick()
     {
         _time = Reaper.Time;
-        _currentRegion = _items?.FirstOrDefault(i => i.Start <= _time && i.End >= _time);
+        _currentRegion = Setlist.Items.FirstOrDefault(i => i.Start <= _time && i.End >= _time);
         await Task.CompletedTask;
     }
 
     protected override async Task OnParametersSetAsync()
     {
-        _items = await Setlist.BuildPlaylist();
+        if (!Setlist.Initialized)
+            await ResetSession();
     }
 
     public void Dispose()
     {
-        _cts.Cancel();
-    }
-
-    private bool IsActive(LoadedSetlistItem item)
-    {
-        return _currentRegion == item;
+        _cts?.Cancel();
     }
 
     private async Task LoadMarkers(LoadedSetlistItem item)
@@ -146,7 +159,8 @@
     {
         var name = item.ReaperRegionName;
         if (string.IsNullOrEmpty(name)) return;
-        await Reaper.GoToRegion(name);
+        if (Reaper.CurrentRegion?.Name.Equals(name, StringComparison.OrdinalIgnoreCase) != true)
+            await Reaper.GoToRegion(name);
         await Reaper.Start();
     }
 
@@ -167,16 +181,26 @@
         await Reaper.GoToTime(marker.Start);
     }
 
-    private async Task GoToRegion(LoadedSetlistItem item)
-    {
-        await Reaper.GoToRegion(item.RegionName);
-    }
-
     private int GetPercentage(LoadedSetlistItem item)
     {
         if (_time < item.Start || _time > item.End) return 0;
         var perc = (_time - item.Start).TotalSeconds / item.Length.TotalSeconds * 100;
         return (int)perc;
+    }
+
+    private async Task Enqueue(LoadedSetlistItem item)
+    {
+        await Setlist.SetNext(item);
+    }
+
+    private async Task ResetSession()
+    {
+        await Setlist.ResetSetlist();
+    }
+
+    private string GetBorderColor(LoadedSetlistItem item)
+    {
+        return _currentRegion == item ? "border-success" : string.Empty;
     }
 
 }

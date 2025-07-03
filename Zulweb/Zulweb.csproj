@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Hsp.Osc\Hsp.Osc.csproj"/>
         <ProjectReference Include="C:\Repos\dotNet\Hsp.Osc\Hsp.Osc\Hsp.Osc.csproj" />
     </ItemGroup>
 

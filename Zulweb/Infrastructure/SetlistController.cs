@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics;
+using System.Text.Json;
 using Zulweb.Models;
 
 namespace Zulweb.Infrastructure;
@@ -7,13 +8,26 @@ public class SetlistController
 {
   private readonly ReaperInterface _reaper;
   private readonly List<SetlistItem> _items = [];
+  private long _lastPlayTrigger;
+
+  public LoadedSetlistItem[] Items { get; private set; } = [];
+
+  //public LoadedSetlistItem? LastPlayed { get; private set; }
+
+  //public LoadedSetlistItem? Next => Items.FirstOrDefault(i => i.Sequence > (LastPlayed?.Sequence ?? 0));
+  public LoadedSetlistItem? Next => Items.FirstOrDefault();
 
   public string? Filename { get; private set; }
+  public bool Initialized { get; private set; }
 
 
   public SetlistController(ReaperInterface reaper)
   {
     _reaper = reaper;
+    _reaper.RegionCompleted += (s, e) =>
+    {
+      Items = Items.Where(i => !i.RegionName.Equals(e.Name)).ToArray();
+    };
   }
 
 
@@ -34,12 +48,15 @@ public class SetlistController
     }
   }
 
-  public async Task<LoadedSetlistItem[]> BuildPlaylist()
+  public async Task ResetSetlist()
   {
+    Initialized = false;
     var all = await BuildAll().ToListAsync();
-    return all
+    Items = all
       .Where(i => !i.Disabled && !string.IsNullOrEmpty(i.ReaperRegionName))
+      .OrderBy(i => i.Sequence)
       .ToArray();
+    Initialized = true;
   }
 
   public async Task ImportFromReaper()
@@ -56,12 +73,13 @@ public class SetlistController
     }
   }
 
-  public void LoadFromFile(string path)
+  public async Task LoadFromFile(string path)
   {
     _items.Clear();
-    var contents = File.ReadAllText(path);
+    var contents = await File.ReadAllTextAsync(path);
     _items.AddRange(JsonSerializer.Deserialize<SetlistItem[]>(contents) ?? []);
     Filename = path;
+    await ResetSetlist();
   }
 
   public void Save()
@@ -70,5 +88,24 @@ public class SetlistController
 
     var contents = JsonSerializer.Serialize(_items);
     File.WriteAllText(Filename, contents);
+  }
+
+  public async Task PlayNext()
+  {
+    //UpdateRemaining();
+    //var next = Items.FirstOrDefault();
+    var next = Next;
+    if (next != null)
+    {
+      _lastPlayTrigger = Stopwatch.GetTimestamp();
+      await _reaper.GoToRegion(next.RegionName);
+      await _reaper.Start();
+    }
+  }
+
+  public async Task SetNext(LoadedSetlistItem item)
+  {
+    Items = Items.Where(i => i.Sequence >= item.Sequence).ToArray();
+    await Task.CompletedTask;
   }
 }

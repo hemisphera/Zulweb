@@ -29,7 +29,7 @@ internal static class Installer
     if (!string.IsNullOrEmpty(path))
     {
       var setup = app.Services.GetRequiredService<SetlistController>();
-      setup.LoadFromFile(path);
+      await setup.LoadFromFile(path);
     }
   }
 }
