@@ -1,0 +1,30 @@
+﻿@using Zulweb.Models
+@using Microsoft.FluentUI.AspNetCore.Components
+
+@if (Item != null)
+{
+    <!--
+    <FluentCard Height="100px" Width="300px">
+        <h1>@Item.Item.RegionName</h1>
+        <ul>
+            <li>REAPER region: @FormatReaperRegion()</li>
+            <li>Start: @Item?.Region?.Start</li>
+            <li>End: @Item?.Region?.End</li>
+        </ul>
+    </FluentCard>
+    !-->
+}
+
+@code {
+
+    [Parameter]
+    public LoadedSetlistItem? Item { get; set; }
+
+    private string FormatReaperRegion()
+    {
+        //if (Item?.Region == null) return "[not found]";
+        //return $"{Item.Region.Id} {Item.Region.Name}";
+        return "";
+    }
+
+}
