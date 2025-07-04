@@ -1,0 +1,38 @@
+﻿@using Zulweb.Infrastructure
+@inject SetlistController Setlist
+@inject ReaperInterface Reaper
+
+<div class="row">
+
+    <div class="btn-group btn-group-lg my-4 col-sm-12 col-md-8 mx-auto" role="group" aria-label="Basic example">
+        <button type="button" class="btn btn-warning"
+                @onclick="() => Setlist.PlayNext()">
+            Next
+        </button>
+        <button type="button" class="btn @(Reaper.Playing ? "btn-outline-danger" : "btn-danger")"
+                @onclick="() => Reaper.Stop()">
+            <i class="bi bi-stop-circle"></i>
+        </button>
+        <button type="button" class="btn @(Reaper.Playing ? "btn-success" : "btn-outline-success")"
+                @onclick="() => Reaper.Play()">
+            <i class="bi bi-play-circle"></i>
+        </button>
+
+        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                aria-expanded="false">
+            <i class="bi bi-list"></i>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+            <li><a class="dropdown-item" @onclick="() => Setlist.LoadFromFile()">
+                    Reset Session
+                </a></li>
+            <li>
+
+                <a class="dropdown-item" @onclick="() => Setlist.RehearsalMode = !Setlist.RehearsalMode">
+                    Toggle Rehearsal Mode
+                </a>
+            </li>
+        </ul>
+    </div>
+
+</div>

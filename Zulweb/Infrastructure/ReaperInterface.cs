@@ -228,7 +228,7 @@ public sealed class ReaperInterface : IAsyncDisposable
   }
 
 
-  public async Task Start()
+  public async Task Play()
   {
     await EnsureClient().SendMessageAsync(new Message("/play"));
   }

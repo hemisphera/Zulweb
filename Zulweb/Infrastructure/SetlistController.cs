@@ -8,13 +8,9 @@ public class SetlistController
 {
   private readonly ReaperInterface _reaper;
   private readonly List<SetlistItem> _items = [];
-  private long _lastPlayTrigger;
 
   public LoadedSetlistItem[] Items { get; private set; } = [];
 
-  //public LoadedSetlistItem? LastPlayed { get; private set; }
-
-  //public LoadedSetlistItem? Next => Items.FirstOrDefault(i => i.Sequence > (LastPlayed?.Sequence ?? 0));
   public LoadedSetlistItem? Next => Items.FirstOrDefault();
 
   public string? Filename { get; private set; }
@@ -75,13 +71,27 @@ public class SetlistController
     }
   }
 
+  public async Task LoadFromFile()
+  {
+    if (string.IsNullOrEmpty(Filename)) return;
+    _items.Clear();
+    var contents = await File.ReadAllTextAsync(Filename);
+    _items.AddRange(JsonSerializer.Deserialize<SetlistItem[]>(contents) ?? []);
+    await ResetSetlist();
+  }
+
   public async Task LoadFromFile(string path)
   {
-    _items.Clear();
-    var contents = await File.ReadAllTextAsync(path);
-    _items.AddRange(JsonSerializer.Deserialize<SetlistItem[]>(contents) ?? []);
-    Filename = path;
-    await ResetSetlist();
+    try
+    {
+      Filename = path;
+      await LoadFromFile();
+    }
+    catch
+    {
+      Filename = null;
+      throw;
+    }
   }
 
   public void Save()
@@ -94,20 +104,20 @@ public class SetlistController
 
   public async Task PlayNext()
   {
-    //UpdateRemaining();
-    //var next = Items.FirstOrDefault();
     var next = Next;
-    if (next != null)
-    {
-      _lastPlayTrigger = Stopwatch.GetTimestamp();
-      await _reaper.GoToRegion(next.RegionName);
-      await _reaper.Start();
-    }
+    if (next == null) return;
+    await _reaper.GoToRegion(next.RegionName);
+    await _reaper.Play();
   }
 
   public async Task SetNext(LoadedSetlistItem item)
   {
     Items = Items.Where(i => i.Sequence >= item.Sequence).ToArray();
     await Task.CompletedTask;
+  }
+
+  public LoadedSetlistItem? GetItemAt(TimeSpan time)
+  {
+    return Items.FirstOrDefault(i => i.Start <= time && i.End >= time);
   }
 }

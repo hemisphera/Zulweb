@@ -1,0 +1,151 @@
+﻿@using Zulweb.Infrastructure
+@using Zulweb.Models
+@inject ReaperInterface Reaper
+@inject SetlistController Setlist
+
+<a class="list-group-item list-group-item-action d-flex flex-column align-items-start border border-3 @(GetClasses()) ">
+    <div class="d-flex justify-content-between align-items-center w-100">
+        <div class="w-100">
+
+            <h5 class="d-flex justify-content-between align-items-center">
+                @Item?.RegionName
+                <span class="badge rounded-pill border-primary border text-secondary">
+                    @Item?.Length.ToString(@"hh\:mm\:ss")
+                </span>
+            </h5>
+
+            <div class="btn-group" role="group">
+                <button type="button"
+                        class="btn btn-success @(Reaper.Playing ? "disabled" : string.Empty)"
+                        @onclick="PlayRegion">
+                    <i class="bi bi-play-circle"></i>
+                </button>
+                <button type="button"
+                        class="btn btn-warning @(Reaper.Playing ? "disabled" : string.Empty)"
+                        @onclick="Enqueue">
+                    <i class="bi bi-arrow-bar-right"></i>
+                </button>
+                @if (Setlist.RehearsalMode)
+                {
+                    @if (_markers == null)
+                    {
+                        <button
+                            class="btn btn-outline-secondary @(Reaper.Playing ? "disabled" : string.Empty)"
+                            @onclick="ExpandRegion">
+                            <i class="bi bi-chevron-expand"></i>
+                            Expand
+                        </button>
+                    }
+                    else
+                    {
+                        <button
+                            class="btn btn-outline-secondary @(Reaper.Playing ? "disabled" : string.Empty)"
+                            @onclick="CollapseRegion">
+                            <i class="bi bi-chevron-contract"></i>
+                            Collapse
+                        </button>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+    <div class="progress my-3 w-100" role="progressbar">
+        <div class="progress-bar progress-bar-striped bg-info"
+             style="width: @(GetPercentage())%"></div>
+    </div>
+</a>
+
+@if (_markers?.Length > 0)
+{
+    @foreach (var marker in _markers)
+    {
+        <a class="list-group-item list-group-item-action list-group-item-secondary"
+           @onclick="() => GoToMarker(marker)" @onclick:preventDefault>
+            @marker.Name
+        </a>
+    }
+}
+
+@code {
+
+    [Parameter]
+    [EditorRequired]
+    public LoadedSetlistItem? Item { get; set; }
+
+    private ReaperMarker[]? _markers;
+    public bool IsFirstItem => Setlist.Next == Item;
+
+
+    private async Task<ReaperMarker[]> LoadMarkers()
+    {
+        if (Item == null) return [];
+        var result = new List<ReaperMarker>
+        {
+            new(-1)
+            {
+                Name = "[Start]",
+                Start = Item.Start
+            }
+        };
+        if (!string.IsNullOrEmpty(Item.ReaperRegionName))
+            result.AddRange(await Reaper.GetRegionMarkers(Item.ReaperRegionName));
+        return result.ToArray();
+    }
+
+
+    private async Task ExpandRegion()
+    {
+        _markers = await LoadMarkers();
+    }
+
+    private Task CollapseRegion()
+    {
+        _markers = null;
+        return Task.CompletedTask;
+    }
+
+    private async Task GoToMarker(ReaperMarker marker)
+    {
+        await Reaper.GoToTime(marker.Start);
+    }
+
+    private int GetPercentage()
+    {
+        var time = Reaper.Time;
+        if (Item == null) return 0;
+        if (time < Item.Start || time > Item.End) return 0;
+        var perc = (time - Item.Start).TotalSeconds / Item.Length.TotalSeconds * 100;
+        return (int)perc;
+    }
+
+    private async Task PlayRegion()
+    {
+        var name = Item?.ReaperRegionName;
+        if (string.IsNullOrEmpty(name)) return;
+        if (Reaper.CurrentRegion?.Name.Equals(name, StringComparison.OrdinalIgnoreCase) != true)
+            await Reaper.GoToRegion(name);
+        await Reaper.Play();
+    }
+
+    private async Task Enqueue()
+    {
+        if (Item == null) return;
+        await Setlist.SetNext(Item);
+    }
+
+    private string GetBorderColor()
+    {
+        return Setlist.GetItemAt(Reaper.Time) == Item ? "border-success" : string.Empty;
+    }
+
+    private string GetClasses()
+    {
+        var classes = new[]
+        {
+            Setlist.GetItemAt(Reaper.Time) == Item ? "border-success" : string.Empty,
+            IsFirstItem ? string.Empty : "opacity-50"
+        };
+        return string.Join(" ", classes.Where(c => !string.IsNullOrEmpty(c)));
+    }
+
+}
