@@ -1,0 +1,19 @@
+﻿<UserControl x:Class="Zulweb.Editor.Views.SidebarView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Zulweb.Editor"
+             xmlns:mvvm="clr-namespace:Eos.Mvvm;assembly=Eos.Mvvm"
+             xmlns:views="clr-namespace:Zulweb.Editor.Views"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance views:Sidebar}"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <DockPanel>
+        <ContentControl Content="{Binding Path=Connection}"
+                        ContentTemplateSelector="{x:Static mvvm:UiSettings.ViewLocator}"
+                        DockPanel.Dock="Top" />
+        <ContentControl Content="{Binding Path=List}"
+                        ContentTemplateSelector="{x:Static mvvm:UiSettings.ViewLocator}" />
+    </DockPanel>
+</UserControl>

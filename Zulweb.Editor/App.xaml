@@ -1,0 +1,12 @@
+﻿<Application x:Class="Zulweb.Editor.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Zulweb.Editor"
+             xmlns:converters="clr-namespace:Eos.Mvvm.Converters;assembly=Eos.Mvvm"
+             StartupUri="Views/MainView.xaml">
+    
+    <Application.Resources>
+        <converters:EventedConverter x:Key="InverseBooleanConverter" OnConvert="InverseBooleanConverter_OnOnConvert" /> 
+
+    </Application.Resources>
+</Application>

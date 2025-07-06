@@ -1,0 +1,27 @@
+﻿<UserControl x:Class="Zulweb.Editor.Views.ConnectionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Zulweb.Editor"
+             xmlns:dxlc="http://schemas.devexpress.com/winfx/2008/xaml/layoutcontrol"
+             xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors"
+             xmlns:views="clr-namespace:Zulweb.Editor.Views"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance views:Connection}"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <DockPanel>
+        <dxlc:LayoutItem Label="Server" DockPanel.Dock="Top" LabelPosition="Top">
+            <dxe:TextEdit Text="{Binding Path=Hostname}"
+                          IsEnabled="{Binding Path=Connected, Converter={StaticResource InverseBooleanConverter}}" />
+        </dxlc:LayoutItem>
+        <UniformGrid Columns="2">
+            <Button Content="Connect"
+                    IsEnabled="{Binding Path=Connected, Converter={StaticResource InverseBooleanConverter}}"
+                    Command="{Binding Path=ConnectCommand}" />
+            <Button Content="Disconnect"
+                    IsEnabled="{Binding Path=Connected}"
+                    Command="{Binding Path=DisconnectCommand}" />
+        </UniformGrid>
+    </DockPanel>
+</UserControl>
