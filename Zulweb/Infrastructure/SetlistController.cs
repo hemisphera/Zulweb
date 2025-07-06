@@ -1,19 +1,17 @@
-﻿using System.Diagnostics;
-using System.Text.Json;
-using Zulweb.Models;
+﻿using Zulweb.Models;
 
 namespace Zulweb.Infrastructure;
 
 public class SetlistController
 {
   private readonly ReaperInterface _reaper;
-  private readonly List<SetlistItem> _items = [];
+  private Setlist? _setlist;
 
   public LoadedSetlistItem[] Items { get; private set; } = [];
 
   public LoadedSetlistItem? Next => Items.FirstOrDefault();
 
-  public string? Filename { get; private set; }
+  public string? SetlistName => _setlist?.Name;
   public bool Initialized { get; private set; }
   public bool RehearsalMode { get; set; }
 
@@ -31,13 +29,13 @@ public class SetlistController
 
   public SetlistItem? Get(string regionName)
   {
-    return _items.FirstOrDefault(r => r.RegionName?.Equals(regionName, StringComparison.OrdinalIgnoreCase) == true);
+    return _setlist?.Items.FirstOrDefault(r => r.RegionName?.Equals(regionName, StringComparison.OrdinalIgnoreCase) == true);
   }
 
   public async IAsyncEnumerable<LoadedSetlistItem> BuildAll()
   {
     await _reaper.RefreshAll();
-    var setlistItems = _items.ToArray();
+    var setlistItems = _setlist?.Items.ToArray() ?? [];
     foreach (var item in setlistItems)
     {
       yield return new LoadedSetlistItem(
@@ -57,6 +55,7 @@ public class SetlistController
     Initialized = true;
   }
 
+  /*
   public async Task ImportFromReaper()
   {
     await _reaper.RefreshAll();
@@ -70,36 +69,12 @@ public class SetlistController
         });
     }
   }
+  */
 
-  public async Task LoadFromFile()
+  public async Task Load(Setlist setlist)
   {
-    if (string.IsNullOrEmpty(Filename)) return;
-    _items.Clear();
-    var contents = await File.ReadAllTextAsync(Filename);
-    _items.AddRange(JsonSerializer.Deserialize<SetlistItem[]>(contents) ?? []);
+    _setlist = setlist;
     await ResetSetlist();
-  }
-
-  public async Task LoadFromFile(string path)
-  {
-    try
-    {
-      Filename = path;
-      await LoadFromFile();
-    }
-    catch
-    {
-      Filename = null;
-      throw;
-    }
-  }
-
-  public void Save()
-  {
-    if (string.IsNullOrEmpty(Filename)) return;
-
-    var contents = JsonSerializer.Serialize(_items);
-    File.WriteAllText(Filename, contents);
   }
 
   public async Task PlayNext()

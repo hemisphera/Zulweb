@@ -52,12 +52,6 @@
         return Task.CompletedTask;
     }
 
-    protected override async Task OnParametersSetAsync()
-    {
-        if (!Setlist.Initialized)
-            await Setlist.LoadFromFile();
-    }
-
     public void Dispose()
     {
         _cts?.Cancel();

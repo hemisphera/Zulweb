@@ -11,11 +11,11 @@ internal static class Installer
   {
     //builder.Services.AddTransient<ISyncfusionStringLocalizer, SyncfusionStringLocalizer>();
     builder.Services.AddSyncfusionBlazor();
-    
+
     builder.Services.AddSingleton<SetlistController>();
     builder.Services.AddSingleton<ReaperInterface>();
     builder.Services.Configure<ReaperSettings>(builder.Configuration.GetSection("Reaper"));
-    builder.Services.Configure<SetlistSettings>(builder.Configuration.GetSection("Setlist"));
+    builder.Services.AddScoped<ISetlistStorage, JsonSetlistStorage>();
   }
 
   public static async Task InitializeZulweb(this WebApplication app)
@@ -24,12 +24,12 @@ internal static class Installer
     var settings = app.Services.GetRequiredService<IOptions<ReaperSettings>>();
     await reaper.ConnectAsync(settings.Value);
 
-    var setlist = app.Services.GetRequiredService<IOptions<SetlistSettings>>();
-    var path = setlist.Value.DefaultSetlistPath;
-    if (!string.IsNullOrEmpty(path))
+    var setlistName = GlobalState.LastSetlistName;
+    if (!string.IsNullOrEmpty(setlistName))
     {
-      var setup = app.Services.GetRequiredService<SetlistController>();
-      await setup.LoadFromFile(path);
+      var storage = app.Services.GetRequiredService<ISetlistStorage>();
+      var controller = app.Services.GetRequiredService<SetlistController>();
+      await controller.Load(await storage.Load(setlistName));
     }
   }
 }

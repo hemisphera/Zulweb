@@ -70,7 +70,7 @@ public sealed class ReaperInterface : IAsyncDisposable
 
     var region = _regions[index];
     if (prop == "name")
-      region.Name = arg.Message.Atoms[0].StringValue;
+      region.Name = arg.Message.Atoms[0].StringValue ?? string.Empty;
     if (prop == "time")
       region.Start = TimeSpan.FromSeconds(arg.Message.Atoms[0].Float32Value);
     if (prop == "number/str")

@@ -8,7 +8,7 @@ public class LoadedSetlistItem
 
   public string RegionName
   {
-    get => _item.RegionName;
+    get => _item.RegionName ?? string.Empty;
     set => _item.RegionName = value;
   }
 

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zulweb", "Zulweb\Zulweb.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hsp.Osc", "C:\Repos\dotNet\Hsp.Osc\Hsp.Osc\Hsp.Osc.csproj", "{19BC45CA-4476-4D4F-9AE3-FBB9B3FB7258}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zulweb.Models", "Zulweb.Models\Zulweb.Models.csproj", "{A159C0D2-A991-4391-82F7-2D5248829DB1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{19BC45CA-4476-4D4F-9AE3-FBB9B3FB7258}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19BC45CA-4476-4D4F-9AE3-FBB9B3FB7258}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19BC45CA-4476-4D4F-9AE3-FBB9B3FB7258}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A159C0D2-A991-4391-82F7-2D5248829DB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A159C0D2-A991-4391-82F7-2D5248829DB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A159C0D2-A991-4391-82F7-2D5248829DB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A159C0D2-A991-4391-82F7-2D5248829DB1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

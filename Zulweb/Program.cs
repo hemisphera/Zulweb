@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
   .AddInteractiveServerComponents();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddControllers();
 
 builder.AddZulweb();
 builder.Services.AddFluentUIComponents();
@@ -30,6 +31,7 @@ app.UseHttpsRedirection();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
+app.MapControllers();
 app.MapRazorComponents<App>()
   .AddInteractiveServerRenderMode();
 

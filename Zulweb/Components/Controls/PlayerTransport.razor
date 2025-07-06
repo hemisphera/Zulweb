@@ -23,11 +23,12 @@
             <i class="bi bi-list"></i>
         </button>
         <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-            <li><a class="dropdown-item" @onclick="() => Setlist.LoadFromFile()">
-                    Reset Session
-                </a></li>
             <li>
-
+                <a class="dropdown-item" @onclick="() => Setlist.ResetSetlist()">
+                    Reset Session
+                </a>
+            </li>
+            <li>
                 <a class="dropdown-item" @onclick="() => Setlist.RehearsalMode = !Setlist.RehearsalMode">
                     Toggle Rehearsal Mode
                 </a>
