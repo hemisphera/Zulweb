@@ -13,10 +13,10 @@ public class GlobalState
   private static DateTime _lastRead = DateTime.MinValue;
   private static readonly FileInfo StateFile = new(Path.Combine(RootFolder, "state.json"));
 
-  public static string LastSetlistName
+  public static Guid LastSetlistId
   {
-    get => GetValue(nameof(LastSetlistName));
-    set => SetValue(nameof(LastSetlistName), value);
+    get => Guid.TryParse(GetValue(nameof(LastSetlistId)), out var id) ? id : Guid.Empty;
+    set => SetValue(nameof(LastSetlistId), value.ToString("D"));
   }
 
   private static string GetValue(string name)
@@ -45,7 +45,7 @@ public class GlobalState
   {
     StateFile.Refresh();
     if (!StateFile.Exists) return;
-    if (StateFile.LastWriteTimeUtc > _lastRead) return;
+    if (StateFile.LastWriteTimeUtc < _lastRead) return;
     var contents = File.ReadAllText(StateFile.FullName);
     _values = JsonSerializer.Deserialize<Dictionary<string, string>>(contents) ?? [];
     _lastRead = DateTime.UtcNow;

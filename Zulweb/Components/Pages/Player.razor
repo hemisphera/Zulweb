@@ -7,14 +7,6 @@
 
 <PageTitle>Setlist</PageTitle>
 
-@if (!Setlist.Initialized)
-{
-    <div class="col-sm-12 col-md-8 mx-auto text-center">
-        <em>Loading ...</em>
-    </div>
-    return;
-}
-
 <div class="container-fluid">
     @if (Setlist.RehearsalMode)
     {

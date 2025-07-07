@@ -12,7 +12,6 @@ public class SetlistController
   public LoadedSetlistItem? Next => Items.FirstOrDefault();
 
   public string? SetlistName => _setlist?.Name;
-  public bool Initialized { get; private set; }
   public bool RehearsalMode { get; set; }
 
 
@@ -46,13 +45,11 @@ public class SetlistController
 
   public async Task ResetSetlist()
   {
-    Initialized = false;
     var all = await BuildAll().ToListAsync();
     Items = all
       .Where(i => !i.Disabled && !string.IsNullOrEmpty(i.ReaperRegionName))
       .OrderBy(i => i.Sequence)
       .ToArray();
-    Initialized = true;
   }
 
   /*

@@ -14,32 +14,39 @@ public class JsonSetlistStorage : ISetlistStorage
   }
 
 
-  public async Task<string[]> List()
+  private FileInfo GetFile(Guid id)
+  {
+    var file = new FileInfo(Path.Combine(_root.FullName, $"{id:D}.json"));
+    return file;
+  }
+
+  public async IAsyncEnumerable<Setlist> List()
   {
     var files = _root.GetFiles("*.json");
-    return await Task.FromResult(files.Select(f => f.Name).ToArray());
+    foreach (var file in files)
+    {
+      using var str = file.OpenRead();
+      var item = await JsonSerializer.DeserializeAsync<Setlist>(str) ?? throw new Exception("Failed to load setlist.");
+      item.Id = Guid.Parse(Path.GetFileNameWithoutExtension(file.Name));
+      yield return item;
+    }
   }
 
   public async Task Delete(string name)
   {
-    var file = new FileInfo(Path.Combine(_root.FullName, $"{name}.json"));
-    file.Delete();
-    await Task.CompletedTask;
+    var setlists = await List().ToArrayAsync();
+    var targets = setlists.Where(a => a.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+    foreach (var target in targets)
+    {
+      var file = GetFile(target.Id);
+      if (file.Exists) file.Delete();
+    }
   }
 
-  public async Task<Setlist> Load(string name)
+  public async Task Save(Setlist item)
   {
-    var file = new FileInfo(Path.Combine(_root.FullName, $"{name}.json"));
-    using var s = file.OpenRead();
-    var setlist = await JsonSerializer.DeserializeAsync<Setlist>(s) ?? throw new Exception("Failed to load setlist.");
-    setlist.Name = file.Name;
-    return setlist;
-  }
-
-  public async Task Save(string name, Setlist item)
-  {
-    item.Name = name;
-    var file = new FileInfo(Path.Combine(_root.FullName, $"{item.Name}.json"));
+    if (item.Id == Guid.Empty) item.Id = Guid.NewGuid();
+    var file = GetFile(item.Id);
     using var s = file.Create();
     await JsonSerializer.SerializeAsync(s, item);
   }

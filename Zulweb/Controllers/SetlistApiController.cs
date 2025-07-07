@@ -23,14 +23,14 @@ public class SetlistApiController : ControllerBase
   [Route("{name}")]
   public async Task<IActionResult> GetSetlist([FromRoute] string name)
   {
-    var setlist = await _storage.Load(name);
+    var setlist = await _storage.Get(name);
     return Ok(setlist);
   }
 
   [HttpGet]
   public async Task<IActionResult> ListSetlists()
   {
-    var setlists = await _storage.List();
+    var setlists = await _storage.List().ToArrayAsync();
     return Ok(setlists);
   }
 
@@ -46,16 +46,15 @@ public class SetlistApiController : ControllerBase
   [Route("{name}/load")]
   public async Task<IActionResult> LoadSetlist([FromRoute] string name)
   {
-    var setlist = await _storage.Load(name);
+    var setlist = await _storage.Get(name);
     await _setlistController.Load(setlist);
     return Accepted();
   }
 
   [HttpPost]
-  [Route("{name}")]
-  public async Task<IActionResult> Upload([FromRoute] string name, [FromBody] Setlist setlist)
+  public async Task<IActionResult> Upload([FromBody] Setlist setlist)
   {
-    await _storage.Save(name, setlist);
+    await _storage.Save(setlist);
     return Accepted();
   }
 }

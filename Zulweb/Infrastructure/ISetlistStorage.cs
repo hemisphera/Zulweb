@@ -4,8 +4,20 @@ namespace Zulweb.Infrastructure;
 
 public interface ISetlistStorage
 {
-  Task<string[]> List();
+  IAsyncEnumerable<Setlist> List();
   Task Delete(string name);
-  Task<Setlist> Load(string name);
-  Task Save(string name, Setlist item);
+  Task Save(Setlist item);
+
+
+  public async Task<Setlist> Get(string name)
+  {
+    var setlists = await List().ToArrayAsync();
+    return setlists.First(a => a.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+  }
+
+  public async Task<Setlist> GetById(Guid id)
+  {
+    var setlists = await List().ToArrayAsync();
+    return setlists.First(a => a.Id == id);
+  }
 }
