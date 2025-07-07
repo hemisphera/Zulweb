@@ -1,0 +1,28 @@
+﻿@page "/editor"
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Zulweb.Components.Controls
+@using Zulweb.Models
+@rendermode InteractiveServer
+
+<FluentLayout>
+
+    <FluentGrid>
+
+        <FluentGridItem xs="8">
+            <SetlistList SetlistSelected="SetlistSelectedHandler"/>
+        </FluentGridItem>
+
+    </FluentGrid>
+
+</FluentLayout>
+
+@code {
+
+    Setlist? _currentSetlist;
+
+    private async Task SetlistSelectedHandler(Setlist? current)
+    {
+        _currentSetlist = current;
+    }
+
+}

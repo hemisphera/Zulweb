@@ -1,0 +1,21 @@
+﻿@using Zulweb.Models
+@using Microsoft.FluentUI.AspNetCore.Components
+
+@if (Current == null) return;
+
+<h3>@Current.Name</h3>
+
+<p>
+    <FluentTextField @bind-Value=Current.Name Label="Name"/>
+</p>
+<p>
+    <FluentTextField @bind-Value=Current.Description Label="Description"/>
+</p>
+
+@code {
+
+    [Parameter]
+    public Setlist? Current { get; set; }
+
+
+}

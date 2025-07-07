@@ -1,0 +1,82 @@
+﻿@using Microsoft.FluentUI.AspNetCore.Components
+@using Zulweb.Infrastructure
+@using Zulweb.Models
+@inject ISetlistStorage Storage
+@inject SetlistController Controller
+@inject NavigationManager Navigation
+
+<h3>Setlists</h3>
+
+<p>
+    <FluentButton OnClick="@(CreateSetlist)">
+        <i class="bi bi-plus-circle-fill"></i>
+    </FluentButton>
+    <FluentButton OnClick="@(DeleteSetlist)">
+        <i class="bi bi-dash-circle"></i>
+    </FluentButton>
+    <FluentButton OnClick="@(LoadSetlist)">
+        <i class="bi bi-arrow-bar-up"></i>
+    </FluentButton>
+    <FluentButton OnClick="@(EditSetlist)">
+        <i class="bi bi-pencil"></i>
+    </FluentButton>
+</p>
+<FluentListbox TOption="string" Items="@_names" SelectedOptionChanged="SelectedItemChanged">
+</FluentListbox>
+
+
+@code {
+
+    [Parameter]
+    public EventCallback<Setlist?> SetlistSelected { get; set; }
+
+    private Setlist? _currentItem;
+
+    private string[] _names = [];
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadList();
+    }
+
+    private async Task CreateSetlist()
+    {
+        const string newName = "new-setlist";
+        await Storage.Save(new Setlist
+        {
+            Name = newName
+        });
+        await LoadList();
+    }
+
+    private async Task DeleteSetlist()
+    {
+        if (_currentItem == null) return;
+        await Storage.Delete(_currentItem.Name);
+        await LoadList();
+    }
+
+    private async Task LoadSetlist()
+    {
+    }
+
+    private async Task EditSetlist()
+    {
+        if (_currentItem == null) return;
+        Navigation.NavigateTo($"editor/{_currentItem.Id:N}");
+    }
+
+    private async Task LoadList()
+    {
+        var items = await Storage.List().ToArrayAsync();
+        _names = items.Select(i => i.Name).ToArray();
+    }
+
+    private async Task SelectedItemChanged(string? name)
+    {
+        _currentItem = string.IsNullOrEmpty(name) ? null : await Storage.Get(name);
+        await SetlistSelected.InvokeAsync(_currentItem);
+    }
+
+}

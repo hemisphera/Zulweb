@@ -1,0 +1,54 @@
+﻿@page "/editor/{id:guid}"
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Zulweb.Infrastructure
+@using Zulweb.Models
+@inject ISetlistStorage Storage
+
+
+<FluentLayout>
+
+    <FluentGrid>
+
+        <FluentGridItem xs="8">
+
+            @if (_current == null)
+            {
+                <em>Loading</em>
+                return;
+            }
+
+            <h3>@_current.Name</h3>
+
+            <p>
+                <FluentTextField @bind-Value=_current.Name Label="Name"/>
+            </p>
+            <p>
+                <FluentTextField @bind-Value=_current.Description Label="Description"/>
+            </p>
+
+            <FluentDataGrid TGridItem="SetlistItem" Items="_current.Items.AsQueryable()">
+                <PropertyColumn Property="@(p => p.Disabled)"/>
+                <PropertyColumn Property="@(p => p.RegionName)"/>
+                <PropertyColumn Property="@(p => p.Sequence)"/>
+            </FluentDataGrid>
+
+        </FluentGridItem>
+
+    </FluentGrid>
+
+</FluentLayout>
+
+@code {
+
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private Setlist? _current;
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _current = await Storage.GetById(Id);
+    }
+
+}
