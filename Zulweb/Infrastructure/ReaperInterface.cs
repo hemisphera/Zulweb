@@ -9,12 +9,13 @@ namespace Zulweb.Infrastructure;
 
 public sealed class ReaperInterface : IAsyncDisposable
 {
+  private readonly ILogger<ReaperInterface> _logger;
   private ReaperRegion[] _regions = [];
   private ReaperMarker[] _markers = [];
   private double _time;
 
-  public ResourceLock RegionLock { get; } = new();
-  public ResourceLock MarkerLock { get; } = new();
+  public ResourceLock RegionLock { get; }
+  public ResourceLock MarkerLock { get; }
 
   public ReaperRegion? CurrentRegion
   {
@@ -25,6 +26,7 @@ public sealed class ReaperInterface : IAsyncDisposable
       var oldRegion = _currentRegion;
       _currentRegion = value;
       RegionChanged?.Invoke(this, new RegionChangedEventArgs(oldRegion, _currentRegion));
+      _logger.LogDebug("Region changed: {region}", _currentRegion?.Name ?? "<none>");
     }
   }
 
@@ -37,6 +39,7 @@ public sealed class ReaperInterface : IAsyncDisposable
       _playing = value;
       _lastPlayStateChange = Stopwatch.GetTimestamp();
       PlayStateChanged?.Invoke(this, _playing);
+      _logger.LogDebug("Playstate changed: {state}", _playing);
     }
   }
 
@@ -56,6 +59,14 @@ public sealed class ReaperInterface : IAsyncDisposable
   public event EventHandler<RegionChangedEventArgs>? RegionChanged;
   public event EventHandler<bool>? PlayStateChanged;
   public event EventHandler<ReaperRegion>? RegionCompleted;
+
+
+  public ReaperInterface(ILogger<ReaperInterface> logger)
+  {
+    _logger = logger;
+    RegionLock = new ResourceLock("Region", null, _logger);
+    MarkerLock = new ResourceLock("Marker", null, _logger);
+  }
 
 
   // ReSharper disable once UnusedMember.Local
@@ -115,6 +126,7 @@ public sealed class ReaperInterface : IAsyncDisposable
       {
         await StopAndMoveCursor();
         RegionCompleted?.Invoke(this, oldRegion);
+        _logger.LogDebug("Auto-stopped region {name}", oldRegion.Name);
       });
     }
   }
