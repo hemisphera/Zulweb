@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Zulweb.DataLayer;
 using Zulweb.Infrastructure;
 using Zulweb.Models;
 
@@ -9,44 +11,46 @@ namespace Zulweb.Controllers;
 public class SetlistApiController : ControllerBase
 {
   private readonly SetlistController _setlistController;
-  private readonly ISetlistStorage _storage;
+  private readonly ZulwebDataContext _db;
 
 
-  public SetlistApiController(SetlistController setlistController, ISetlistStorage storage)
+  public SetlistApiController(SetlistController setlistController, ZulwebDataContext db)
   {
     _setlistController = setlistController;
-    _storage = storage;
+    _db = db;
   }
 
 
   [HttpGet]
-  [Route("{name}")]
-  public async Task<IActionResult> GetSetlist([FromRoute] string name)
+  [Route("{id:guid}")]
+  public async Task<IActionResult> GetSetlist([FromRoute] Guid id)
   {
-    var setlist = await _storage.Get(name);
+    var setlist = await _db.LoadSetlist(id);
     return Ok(setlist);
   }
 
   [HttpGet]
   public async Task<IActionResult> ListSetlists()
   {
-    var setlists = await _storage.List().ToArrayAsync();
-    return Ok(setlists);
+    var ids = await _db.Setlists.Select(sl => sl.Id).ToArrayAsync();
+    var setLists = await Task.WhenAll(ids.Select(id => _db.LoadSetlist(id)));
+    return Ok(setLists.OrderBy(s => s.Name));
   }
 
   [HttpDelete]
-  [Route("{name}")]
-  public async Task<IActionResult> DeleteSetlist([FromRoute] string name)
+  [Route("{id:guid}")]
+  public async Task<IActionResult> DeleteSetlist([FromRoute] Guid id)
   {
-    await _storage.Delete(name);
+    await _db.Setlists.Where(s => s.Id == id).ExecuteDeleteAsync();
+    await _db.SetlistItems.Where(s => s.SetlistId == id).ExecuteDeleteAsync();
     return Accepted();
   }
 
   [HttpPost]
-  [Route("{name}/load")]
-  public async Task<IActionResult> LoadSetlist([FromRoute] string name)
+  [Route("current/{id:guid}")]
+  public async Task<IActionResult> LoadSetlist([FromRoute] Guid id)
   {
-    var setlist = await _storage.Get(name);
+    var setlist = await _db.LoadSetlist(id);
     await _setlistController.Load(setlist);
     return Accepted();
   }
@@ -54,7 +58,7 @@ public class SetlistApiController : ControllerBase
   [HttpPost]
   public async Task<IActionResult> Upload([FromBody] Setlist setlist)
   {
-    await _storage.Save(setlist);
+    //await _storage.Save(setlist);
     return Accepted();
   }
 }

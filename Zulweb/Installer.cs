@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Syncfusion.Blazor;
+using Zulweb.DataLayer;
 using Zulweb.Infrastructure;
 using Zulweb.Infrastructure.Settings;
 
@@ -26,6 +27,9 @@ internal static class Installer
 
     var lastSetlistId = GlobalState.LastSetlistId;
     if (lastSetlistId != Guid.Empty)
+    await using var dbScope = app.Services.CreateAsyncScope();
+    var db = dbScope.ServiceProvider.GetRequiredService<ZulwebDataContext>();
+    await db.Database.EnsureCreatedAsync();
     {
       var storage = app.Services.GetRequiredService<ISetlistStorage>();
       var controller = app.Services.GetRequiredService<SetlistController>();
