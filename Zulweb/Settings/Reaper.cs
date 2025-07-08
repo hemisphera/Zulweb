@@ -1,6 +1,6 @@
-﻿namespace Zulweb.Infrastructure.Settings;
+﻿namespace Zulweb.Settings;
 
-public class ReaperSettings
+public class Reaper
 {
   public int OscPort { get; set; }
   public int RegionCount { get; set; } = 50;

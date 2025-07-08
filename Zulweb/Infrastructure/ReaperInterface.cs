@@ -2,8 +2,8 @@
 using System.Net;
 using Hsp.Osc;
 using Zulweb.Infrastructure.EventArgs;
-using Zulweb.Infrastructure.Settings;
 using Zulweb.Models;
+using Zulweb.Settings;
 
 namespace Zulweb.Infrastructure;
 
@@ -201,7 +201,7 @@ public sealed class ReaperInterface : IAsyncDisposable
   }
 
 
-  public async Task ConnectAsync(ReaperSettings settings)
+  public async Task ConnectAsync(Reaper settings)
   {
     if (Connected) throw new InvalidOperationException("REAPER is already connected.");
 

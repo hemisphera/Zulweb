@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Zulweb.LedProxy\Zulweb.LedProxy.csproj" />
         <ProjectReference Include="..\Zulweb.MidiPipes\Zulweb.MidiPipes.csproj" />
         <ProjectReference Include="..\Zulweb.Models\Zulweb.Models.csproj" />
         <ProjectReference Include="C:\Repos\dotNet\Hsp.Osc\Hsp.Osc\Hsp.Osc.csproj" />

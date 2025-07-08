@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Options;
 using Zulweb.Infrastructure;
-using Zulweb.Infrastructure.Settings;
+using Zulweb.LedProxy;
 using Zulweb.MidiPipes;
 using Zulweb.Models;
 
@@ -14,29 +14,36 @@ internal static class Installer
     builder.Services.AddSingleton<SetlistController>();
     builder.Services.AddSingleton<ReaperInterface>();
     builder.Services.AddSingleton<MidiPipeHost>();
-    builder.Services.Configure<ReaperSettings>(builder.Configuration.GetSection("Reaper"));
+    builder.Services.AddTransient<IPackageSender, UdpPackageSender>();
+
+    builder.Services.Configure<Settings.Reaper>(builder.Configuration.GetSection(nameof(Settings.Reaper)));
+    builder.Services.Configure<Settings.Setlist>(builder.Configuration.GetSection(nameof(Settings.Setlist)));
+    builder.Services.Configure<Settings.MidiPipes>(builder.Configuration.GetSection(nameof(Settings.MidiPipes)));
+    builder.Services.Configure<LedStripSettings>(builder.Configuration.GetSection(nameof(LedStripSettings)));
+
+    builder.Services.AddHostedService<LedStripDispatcher>();
   }
 
   public static async Task InitializeZulweb(this WebApplication app)
   {
     var reaper = app.Services.GetRequiredService<ReaperInterface>();
-    var settings = app.Services.GetRequiredService<IOptions<ReaperSettings>>();
+    var settings = app.Services.GetRequiredService<IOptions<Settings.Reaper>>();
     await reaper.ConnectAsync(settings.Value);
 
-    var sessionSettings = app.Services.GetRequiredService<IOptions<Settings.Session>>().Value;
-
-    if (!string.IsNullOrEmpty(sessionSettings.SetlistPath))
+    var setlistSettings = app.Services.GetRequiredService<IOptions<Settings.Setlist>>().Value;
+    if (!string.IsNullOrEmpty(setlistSettings.FilePath))
     {
       var controller = app.Services.GetRequiredService<SetlistController>();
-      using var fs = File.Open(sessionSettings.SetlistPath, FileMode.Open);
+      using var fs = File.Open(setlistSettings.FilePath, FileMode.Open);
       var setlist = await JsonSerializer.DeserializeAsync<Setlist>(fs) ?? throw new NotSupportedException();
       await controller.Load(setlist);
     }
 
-    if (!string.IsNullOrEmpty(sessionSettings.MidiPipeConfigurationPath))
+    var midiPipeSettings = app.Services.GetRequiredService<IOptions<Settings.MidiPipes>>().Value;
+    if (!string.IsNullOrEmpty(midiPipeSettings.FilePath))
     {
       var pipeHost = app.Services.GetRequiredService<MidiPipeHost>();
-      await pipeHost.Start(sessionSettings.MidiPipeConfigurationPath);
+      await pipeHost.Start(midiPipeSettings.FilePath);
     }
   }
 }

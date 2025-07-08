@@ -2,7 +2,6 @@ using Microsoft.FluentUI.AspNetCore.Components;
 using Zulweb;
 using Zulweb.Components;
 using Zulweb.Infrastructure;
-using Zulweb.Infrastructure.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
