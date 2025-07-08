@@ -15,7 +15,7 @@ public sealed class UdpPackageSender : IPackageSender, IDisposable
   {
     _client = new UdpClient();
     _client.Connect(new IPEndPoint(IPAddress.Broadcast, Defaults.UdpPort));
-    logger.LogInformation("Sending UDP packages to port {Port}", Defaults.UdpPort);
+    logger.LogDebug("Sending UDP packages to port {Port}", Defaults.UdpPort);
 
     Task.Run(async () =>
     {
@@ -25,7 +25,7 @@ public sealed class UdpPackageSender : IPackageSender, IDisposable
         await Task.Delay(TimeSpan.FromSeconds(10), token);
         var v = _packageCounter;
         _packageCounter = 0;
-        logger.LogInformation("{PackageCounter} packages sent.", v);
+        logger.LogDebug("{PackageCounter} packages sent.", v);
       }
     });
   }
