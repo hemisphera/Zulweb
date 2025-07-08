@@ -31,6 +31,11 @@ public class Connection
   }
 
   /// <summary>
+  /// An optional description for the connection.
+  /// </summary>
+  public string? Description { get; set; }
+
+  /// <summary>
   /// The input port type to connect to.
   /// </summary>
   public InputPortType Type { get; set; }

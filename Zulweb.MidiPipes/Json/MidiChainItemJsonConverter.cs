@@ -97,13 +97,7 @@ public class MidiChainItemJsonConverter : JsonConverter<IMidiChainItem[]>
           ControllerNumber = int.Parse(parts[2])
         };
       case ChainItemType.Filter:
-        return new FilterChainItem
-        {
-          MessageType = parts[1] == "*" ? null : [Enum.Parse<MidiMessageType>(parts[1])],
-          Channel = parts[2] == "*" ? null : [Range.Parse(parts[2])],
-          Data1 = parts[3] == "*" ? null : [Range.Parse(parts[3])],
-          Data2 = parts[4] == "*" ? null : [Range.Parse(parts[4])]
-        };
+        return FilterChainItem.FromString(parts);
       case ChainItemType.Delay:
         return new DelayMidiChainItem
         {

@@ -8,6 +8,17 @@ public class FilterChainItem : IMidiChainItem
 {
   private ILogger? _logger;
 
+  public static FilterChainItem FromString(string[] parts)
+  {
+    return new FilterChainItem
+    {
+      MessageType = parts[1] == "*" ? null : [Enum.Parse<MidiMessageType>(parts[1])],
+      Channel = parts[2] == "*" ? null : [Range.Parse(parts[2])],
+      Data1 = parts[3] == "*" ? null : [Range.Parse(parts[3])],
+      Data2 = parts[4] == "*" ? null : [Range.Parse(parts[4])]
+    };
+  }
+  
   /// <summary>
   /// Specifies the channel(s) to allow. If not specified or empty, all channels are allowed.
   /// </summary>
@@ -45,7 +56,7 @@ public class FilterChainItem : IMidiChainItem
   {
     if (Channel == null || Channel.Length == 0) return true;
     if (message is not ChannelMessage cm) return false;
-    return Channel.Any(r => r.Contains(cm.Channel));
+    return Channel.Any(r => r.Matches(cm.Channel));
   }
 
   private bool MessageTypeMatches(IMidiMessage message)
@@ -71,13 +82,13 @@ public class FilterChainItem : IMidiChainItem
   private bool Data1Matches(IMidiMessage message)
   {
     if (Data1 == null || Data1.Length == 0) return true;
-    return message is ChannelMessage cm && Data1.Any(r => r.Contains(cm.Data1));
+    return message is ChannelMessage cm && Data1.Any(r => r.Matches(cm.Data1));
   }
 
   private bool Data2Matches(IMidiMessage message)
   {
     if (Data2 == null || Data2.Length == 0) return true;
-    return message is ChannelMessage cm && Data2.Any(r => r.Contains(cm.Data2));
+    return message is ChannelMessage cm && Data2.Any(r => r.Matches(cm.Data2));
   }
 
   public Task Initialize(Connection connection, ILogger? logger = null)
