@@ -221,6 +221,7 @@ public sealed class ReaperInterface : IAsyncDisposable
     await RefreshAll();
 
     Connected = true;
+    _logger.LogInformation("Connected to REAPER on OSC port {port}", settings.OscPort);
   }
 
   public async Task DisconnectAsync()
@@ -237,6 +238,7 @@ public sealed class ReaperInterface : IAsyncDisposable
     }
 
     Connected = false;
+    _logger.LogInformation("Disconnected from REAPER");
   }
 
 

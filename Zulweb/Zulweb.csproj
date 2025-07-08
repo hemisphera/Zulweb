@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Zulweb.MidiPipes\Zulweb.MidiPipes.csproj" />
         <ProjectReference Include="..\Zulweb.Models\Zulweb.Models.csproj" />
         <ProjectReference Include="C:\Repos\dotNet\Hsp.Osc\Hsp.Osc\Hsp.Osc.csproj" />
     </ItemGroup>
@@ -14,8 +15,6 @@
     <ItemGroup>
         <PackageReference Include="Hsp.Extensions.Io" Version="0.0.27" />
         <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.12.0"/>
-        <PackageReference Include="Syncfusion.Blazor.Grid" Version="30.1.38"/>
-        <PackageReference Include="Syncfusion.Blazor.Themes" Version="30.1.38"/>
         <PackageReference Include="System.Linq.Async" Version="6.0.3"/>
     </ItemGroup>
 

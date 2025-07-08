@@ -5,6 +5,7 @@ namespace Zulweb.Infrastructure;
 public class SetlistController
 {
   private readonly ReaperInterface _reaper;
+  private readonly ILogger<SetlistController> _logger;
   private Setlist? _setlist;
 
   public LoadedSetlistItem[] Items { get; private set; } = [];
@@ -15,9 +16,10 @@ public class SetlistController
   public bool RehearsalMode { get; set; }
 
 
-  public SetlistController(ReaperInterface reaper)
+  public SetlistController(ReaperInterface reaper, ILogger<SetlistController> logger)
   {
     _reaper = reaper;
+    _logger = logger;
     _reaper.RegionCompleted += (s, e) =>
     {
       if (RehearsalMode) return;
@@ -72,6 +74,7 @@ public class SetlistController
   {
     _setlist = setlist;
     await ResetSetlist();
+    _logger.LogInformation("Loaded setlist {setlistId}: {setlistName}", setlist.Id, setlist.Name);
   }
 
   public async Task PlayNext()

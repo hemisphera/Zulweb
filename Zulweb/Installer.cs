@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.Options;
-using Syncfusion.Blazor;
+﻿using System.Text.Json;
+using Microsoft.Extensions.Options;
 using Zulweb.Infrastructure;
 using Zulweb.Infrastructure.Settings;
+using Zulweb.MidiPipes;
+using Zulweb.Models;
 
 namespace Zulweb;
 
@@ -9,13 +11,10 @@ internal static class Installer
 {
   public static void AddZulweb(this WebApplicationBuilder builder)
   {
-    //builder.Services.AddTransient<ISyncfusionStringLocalizer, SyncfusionStringLocalizer>();
-    builder.Services.AddSyncfusionBlazor();
-
     builder.Services.AddSingleton<SetlistController>();
     builder.Services.AddSingleton<ReaperInterface>();
+    builder.Services.AddSingleton<MidiPipeHost>();
     builder.Services.Configure<ReaperSettings>(builder.Configuration.GetSection("Reaper"));
-    builder.Services.AddSingleton<ISetlistStorage, JsonSetlistStorage>();
   }
 
   public static async Task InitializeZulweb(this WebApplication app)
@@ -24,12 +23,20 @@ internal static class Installer
     var settings = app.Services.GetRequiredService<IOptions<ReaperSettings>>();
     await reaper.ConnectAsync(settings.Value);
 
-    var lastSetlistId = GlobalState.LastSetlistId;
-    if (lastSetlistId != Guid.Empty)
+    var sessionSettings = app.Services.GetRequiredService<IOptions<Settings.Session>>().Value;
+
+    if (!string.IsNullOrEmpty(sessionSettings.SetlistPath))
     {
-      var storage = app.Services.GetRequiredService<ISetlistStorage>();
       var controller = app.Services.GetRequiredService<SetlistController>();
-      await controller.Load(await storage.GetById(lastSetlistId));
+      using var fs = File.Open(sessionSettings.SetlistPath, FileMode.Open);
+      var setlist = await JsonSerializer.DeserializeAsync<Setlist>(fs) ?? throw new NotSupportedException();
+      await controller.Load(setlist);
+    }
+
+    if (!string.IsNullOrEmpty(sessionSettings.MidiPipeConfigurationPath))
+    {
+      var pipeHost = app.Services.GetRequiredService<MidiPipeHost>();
+      await pipeHost.Start(sessionSettings.MidiPipeConfigurationPath);
     }
   }
 }
