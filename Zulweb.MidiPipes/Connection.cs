@@ -97,6 +97,7 @@ public class Connection
           throw;
         }
       }));
+      _logger?.LogInformation("Connected: {name}", Name);
       Connected = true;
     }
     catch
@@ -110,7 +111,7 @@ public class Connection
   {
     return Type switch
     {
-      InputPortType.Midi => new MidiInputPort(InputPort),
+      InputPortType.Midi => new MidiInputPort(InputPort, _logger),
       InputPortType.Serial => new SerialInputPort(InputPort),
       InputPortType.WebRequest => new WebRequestInputPort(InputPort),
       _ => throw new ArgumentOutOfRangeException()

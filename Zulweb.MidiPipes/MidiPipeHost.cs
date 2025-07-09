@@ -35,12 +35,14 @@ public sealed class MidiPipeHost : IAsyncDisposable
       _virtualPorts.Clear();
       foreach (var portName in config.VirtualPorts ?? [])
       {
-        _virtualPorts.Add(VirtualMidiPort.Create(portName));
+        var port = VirtualMidiPort.Create(portName);
+        port.Loopback = false;
+        _virtualPorts.Add(port);
         _logger.LogInformation("Created virtual port '{name}'.", portName);
       }
 
-      var delay = TimeSpan.FromSeconds(1);
-      _logger.LogInformation("Waiting {delay}s", delay.TotalSeconds);
+      var delay = TimeSpan.FromSeconds(2);
+      _logger.LogInformation("Waiting {delay}s for virtual ports to become available", delay.TotalSeconds);
       await Task.Delay(delay);
 
       _connections.Clear();

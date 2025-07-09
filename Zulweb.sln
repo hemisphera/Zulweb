@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.808.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zulweb", "Zulweb\Zulweb.csproj", "{B71E228C-1FDA-42F8-BCFD-6B0E44878316}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hsp.Osc", "C:\Repos\dotNet\Hsp.Osc\Hsp.Osc\Hsp.Osc.csproj", "{19BC45CA-4476-4D4F-9AE3-FBB9B3FB7258}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zulweb.Models", "Zulweb.Models\Zulweb.Models.csproj", "{A159C0D2-A991-4391-82F7-2D5248829DB1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zulweb.MidiPipes", "Zulweb.MidiPipes\Zulweb.MidiPipes.csproj", "{BCF74FB2-CE4D-4265-9E8A-AAF573DDD870}"
@@ -23,10 +21,6 @@ Global
 		{B71E228C-1FDA-42F8-BCFD-6B0E44878316}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B71E228C-1FDA-42F8-BCFD-6B0E44878316}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B71E228C-1FDA-42F8-BCFD-6B0E44878316}.Release|Any CPU.Build.0 = Release|Any CPU
-		{19BC45CA-4476-4D4F-9AE3-FBB9B3FB7258}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{19BC45CA-4476-4D4F-9AE3-FBB9B3FB7258}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{19BC45CA-4476-4D4F-9AE3-FBB9B3FB7258}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{19BC45CA-4476-4D4F-9AE3-FBB9B3FB7258}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A159C0D2-A991-4391-82F7-2D5248829DB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A159C0D2-A991-4391-82F7-2D5248829DB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A159C0D2-A991-4391-82F7-2D5248829DB1}.Release|Any CPU.ActiveCfg = Release|Any CPU

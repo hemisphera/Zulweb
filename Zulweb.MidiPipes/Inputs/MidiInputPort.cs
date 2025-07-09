@@ -1,19 +1,22 @@
 ﻿using Hsp.Midi;
 using Hsp.Midi.Messages;
+using Microsoft.Extensions.Logging;
 
 namespace Zulweb.MidiPipes.Inputs;
 
 public class MidiInputPort : IInputPort
 {
-  public InputMidiDevice? Device { get; private set; }
+  private readonly ILogger? _logger;
+  public IInputMidiDevice? Device { get; private set; }
   public string PortName { get; }
 
 
   public event EventHandler<IMidiMessage>? MessageReceived;
 
 
-  public MidiInputPort(string portName)
+  public MidiInputPort(string portName, ILogger? logger)
   {
+    _logger = logger;
     PortName = portName;
   }
 

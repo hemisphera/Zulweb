@@ -11,7 +11,7 @@ public sealed class LedStripDispatcher : BackgroundService
   private readonly ILogger<LedStripDispatcher> _logger;
   private readonly IPackageSender _sender;
   public string? MidiDeviceName { get; }
-  private InputMidiDevice? _device;
+  private IInputMidiDevice? _device;
   private VirtualMidiPort? _virtualPort;
   public TimeSpan Frequency { get; set; }
 

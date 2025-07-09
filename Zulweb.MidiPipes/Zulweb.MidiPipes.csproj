@@ -18,7 +18,7 @@
 
     <ItemGroup>
         <PackageReference Include="Bogus" Version="35.6.1"/>
-        <PackageReference Include="Hsp.Midi" Version="0.0.4"/>
+        <PackageReference Include="Hsp.Midi" Version="1.0.1" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
         <PackageReference Include="System.IO.Ports" Version="8.0.0"/>
     </ItemGroup>

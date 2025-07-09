@@ -7,7 +7,7 @@ namespace Zulweb.MidiPipes.Chains;
 public class OutputMidiChainItem : IMidiChainItem
 {
   private ILogger? _logger;
-  private OutputMidiDevice? _device;
+  private IOutputMidiDevice? _device;
 
   /// <summary>
   /// Specifies the name of the MIDI port to use.
