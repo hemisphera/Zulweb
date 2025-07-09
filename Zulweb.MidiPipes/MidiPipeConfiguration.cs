@@ -26,8 +26,15 @@ public class MidiPipeConfiguration
 
   /// <summary>
   /// Specifies a list of virtual MIDI ports to create.
+  /// Theese virtual ports will NOT loopback.
   /// </summary>
   public string[]? VirtualPorts { get; set; }
+
+  /// <summary>
+  /// Specifies a list of virtual MIDI ports to create.
+  /// Theese virtual ports WILL loopback.
+  /// </summary>
+  public string[]? VirtualLoopbackPorts { get; set; }
 
   /// <summary>
   /// Specifies a list of MIDI connections to create.

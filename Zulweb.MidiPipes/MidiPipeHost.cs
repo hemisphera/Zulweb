@@ -33,12 +33,14 @@ public sealed class MidiPipeHost : IAsyncDisposable
     try
     {
       _virtualPorts.Clear();
-      foreach (var portName in config.VirtualPorts ?? [])
+      var virtualPorts = (config.VirtualPorts ?? []).Concat(config.VirtualLoopbackPorts ?? []).Distinct().ToArray();
+      foreach (var portName in virtualPorts)
       {
+        var isLoopback = config.VirtualLoopbackPorts?.Any(a => a.Equals(portName, StringComparison.OrdinalIgnoreCase)) == true;
+        _logger.LogInformation("Creating virtual port '{name}'. Loopback: {}", portName, isLoopback);
         var port = VirtualMidiPort.Create(portName);
-        port.Loopback = false;
+        port.Loopback = isLoopback;
         _virtualPorts.Add(port);
-        _logger.LogInformation("Created virtual port '{name}'.", portName);
       }
 
       var delay = TimeSpan.FromSeconds(2);
