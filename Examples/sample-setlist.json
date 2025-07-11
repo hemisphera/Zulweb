@@ -1,0 +1,5 @@
+{
+    "$schema": "https://raw.githubusercontent.com/hemisphera/Zulweb/refs/heads/master/Schemas/setlist.json",
+    "Name": "A sample setlist",
+    "Items": []
+}
