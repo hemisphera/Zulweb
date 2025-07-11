@@ -1,0 +1,48 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema#",
+    "title": "Setlist Schema for Zulweb",
+    "type": "object",
+    "properties": {
+        "Name": {
+            "type": "string",
+            "description": "The name of the setlist"
+        },
+        "Id": {
+            "type": "string",
+            "description": "An internal ID of the setlist. This is optional."
+        },
+        "Items": {
+            "type": "array",
+            "description": "A list of regions in the setlist",
+            "items": {
+                "$ref": "#/definitions/SetlistItem"
+            }
+        }
+    },
+    "required": [
+        "Name",
+        "Items"
+    ],
+    "definitions": {
+        "SetlistItem": {
+            "type": "object",
+            "properties": {
+                "RegionName": {
+                    "type": "string",
+                    "description": "The name of the region."
+                },
+                "Sequence": {
+                    "type": "integer",
+                    "description": "The sequence of the item in the setlist. This does not need to be consecutive, this will be used to sort the setlist."
+                },
+                "Disabled": {
+                    "type": "boolean",
+                    "description": "Specifies if the item is disabled. This is optional and defaults to false. Disabled items are treated as if they don't exist."
+                }
+            },
+            "required": [
+                "RegionName"
+            ]
+        }
+    }
+}
