@@ -53,7 +53,7 @@ public class Connection
   /// <summary>
   /// The chain of items to process the incoming messages.
   /// </summary>
-  public IMidiChainItem[]? Chain { get; set; }
+  public MidiChain[]? Chains { get; set; }
 
   public IInputPort? Port { get; private set; }
 
@@ -85,18 +85,7 @@ public class Connection
     {
       await Port.Connect();
       Port.MessageReceived += DeviceOnMessageReceived;
-      await Task.WhenAll((Chain ?? []).Select(a =>
-      {
-        try
-        {
-          return a.Initialize(this, loggerFactory?.CreateLogger(a.GetType()));
-        }
-        catch (Exception ex)
-        {
-          _logger?.LogError(ex, "Failed to initialize chain item {name}: {message}", a.GetType().Name, ex.Message);
-          throw;
-        }
-      }));
+      await Task.WhenAll((Chains ?? []).Select(chain => chain.Initialize(this, loggerFactory)));
       _logger?.LogInformation("Connected: {name}", Name);
       Connected = true;
     }
@@ -121,7 +110,7 @@ public class Connection
   public async Task Disconnect()
   {
     if (!Enabled) return;
-    await Task.WhenAll((Chain ?? []).Select(c => c.Deinitialize()));
+    await Task.WhenAll((Chains ?? []).Select(chain => chain.Deinitialize()));
 
     if (Port != null)
     {
@@ -138,12 +127,21 @@ public class Connection
 
   private void DeviceOnMessageReceived(object? sender, IMidiMessage e)
   {
-    Dispatch(e);
+    if (_logger?.IsEnabled(LogLevel.Debug) == true)
+    {
+      _logger.LogDebug("Received on {port}: {message}", InputPort, e);
+    }
+
+    foreach (var chain in Chains ?? [])
+    {
+      if (!chain.Enabled) continue;
+      Dispatch(e, chain);
+    }
   }
 
-  public void Dispatch(IMidiMessage midiMessage)
+  public void Dispatch(IMidiMessage midiMessage, MidiChain chain)
   {
-    var cr = new ChainRunner(this, Chain ?? []);
+    var cr = new ChainRunner(this, chain.Items ?? []);
     _ = cr.Run(midiMessage);
   }
 }

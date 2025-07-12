@@ -4,6 +4,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Zulweb.MidiPipes.Chains;
 
+/// <summary>
+/// Creates a new MIDI message. Allows reuse of original message data.
+/// </summary>
 public class MessageMidiChainItem : IMidiChainItem
 {
   public ChannelCommand? Command { get; set; }
@@ -40,5 +43,21 @@ public class MessageMidiChainItem : IMidiChainItem
   public Task Deinitialize()
   {
     return Task.CompletedTask;
+  }
+
+  /// <summary>
+  /// Parameters:
+  /// [0]: The Command of the new message. Use '*' to reuse the value of the original message.
+  /// [1]: The Channel of the new message. Use '*' to reuse the value of the original message.
+  /// [2]: The Data1 of the new message. Use '*' to reuse the value of the original message.
+  /// [3]: The Data2 of the new message. Use '*' to reuse the value of the original message.
+  /// </summary>
+  /// <param name="tokens"></param>
+  public void FromString(string[] tokens)
+  {
+    Command = tokens.GetEnumTokenOrNull<ChannelCommand>(0);
+    Channel = tokens.GetIntTokenOrNull(1);
+    Data1 = tokens.GetIntTokenOrNull(2);
+    Data2 = tokens.GetIntTokenOrNull(3);
   }
 }

@@ -4,6 +4,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Zulweb.MidiPipes.Chains;
 
+/// <summary>
+/// Read a variable value from the internal value storage and apply it to the message. 
+/// </summary>
 public class ReadValueChainItem : IMidiChainItem
 {
   public string VariableName { get; set; } = string.Empty;
@@ -44,5 +47,19 @@ public class ReadValueChainItem : IMidiChainItem
   public Task Deinitialize()
   {
     return Task.CompletedTask;
+  }
+
+  /// <summary>
+  /// Parameters:
+  /// [0]: The name of the variable. This is required.
+  /// [1]: The property of the MIDI message where to apply the value. Can be "Command", "Channel", "Data1", "Data2"
+  /// [2]: Specifies the initial value for the variable, should it not exist. 
+  /// </summary>
+  /// <param name="tokens"></param>
+  public void FromString(string[] tokens)
+  {
+    VariableName = tokens.GetToken(0) ?? throw new Exception("Argument 0 missing.");
+    Type = tokens.GetEnumToken<ValueType>(1);
+    InitValue = tokens.GetIntToken(2);
   }
 }

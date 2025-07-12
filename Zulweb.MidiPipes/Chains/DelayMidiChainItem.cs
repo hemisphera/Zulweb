@@ -3,6 +3,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Zulweb.MidiPipes.Chains;
 
+/// <summary>
+/// Delays the chain execution for the specified number of milliseconds.
+/// </summary>
 public class DelayMidiChainItem : IMidiChainItem
 {
   public int Milliseconds { get; set; }
@@ -24,5 +27,15 @@ public class DelayMidiChainItem : IMidiChainItem
   public Task Deinitialize()
   {
     return Task.CompletedTask;
+  }
+
+  /// <summary>
+  /// Parameters:
+  /// [0]: the length of the delay in milliseconds. Default: 100.
+  /// </summary>
+  /// <param name="tokens"></param>
+  public void FromString(string[] tokens)
+  {
+    Milliseconds = tokens.GetIntToken(0, 100);
   }
 }

@@ -4,21 +4,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Zulweb.MidiPipes.Chains;
 
+/// <summary>
+/// Specifies a filter for a MIDI message. If the message does not match, it is discarded.
+/// </summary>
 public class FilterChainItem : IMidiChainItem
 {
   private ILogger? _logger;
 
-  public static FilterChainItem FromString(string[] parts)
-  {
-    return new FilterChainItem
-    {
-      MessageType = parts[1] == "*" ? null : [Enum.Parse<MidiMessageType>(parts[1])],
-      Channel = parts[2] == "*" ? null : [Range.Parse(parts[2])],
-      Data1 = parts[3] == "*" ? null : [Range.Parse(parts[3])],
-      Data2 = parts[4] == "*" ? null : [Range.Parse(parts[4])]
-    };
-  }
-  
   /// <summary>
   /// Specifies the channel(s) to allow. If not specified or empty, all channels are allowed.
   /// </summary>
@@ -100,5 +92,21 @@ public class FilterChainItem : IMidiChainItem
   public Task Deinitialize()
   {
     return Task.CompletedTask;
+  }
+
+  /// <summary>
+  /// Parameters:
+  /// [0]: The message type. Use '*' to allow all values. Can specify multiple values, delimited by '|'.
+  /// [1]: One or more ranges for "Channel". Can specify multiple (delimited by '|'). If multiple conditions are given, they are in OR.
+  /// [2]: One or more ranges for "Data1". Can specify multiple (delimited by '|'). If multiple conditions are given, they are in OR.
+  /// [3]: One or more ranges for "Data2". Can specify multiple (delimited by '|'). If multiple conditions are given, they are in OR.
+  /// </summary>
+  /// <param name="tokens"></param>
+  public void FromString(string[] tokens)
+  {
+    MessageType = tokens.GetEnumTokenMultiple<MidiMessageType>(0);
+    Channel = tokens.GetRangeTokenMultiple(1);
+    Data1 = tokens.GetRangeTokenMultiple(2);
+    Data2 = tokens.GetRangeTokenMultiple(3);
   }
 }

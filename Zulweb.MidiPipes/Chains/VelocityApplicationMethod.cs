@@ -9,5 +9,6 @@ public enum VelocityApplicationMethod
   /// <summary>
   /// The output velocity is in the specified range, proportinal to the input velocity.
   /// </summary>
-  Translate
+  Translate,
+  Gate
 }

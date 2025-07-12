@@ -4,7 +4,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Zulweb.MidiPipes.Chains;
 
-public class OutputMidiChainItem : IMidiChainItem
+/// <summary>
+/// Writes the message to an output channel.
+/// </summary>
+public class OutputChainItem : IMidiChainItem
 {
   private ILogger? _logger;
   private IOutputMidiDevice? _device;
@@ -14,17 +17,12 @@ public class OutputMidiChainItem : IMidiChainItem
   /// </summary>
   public string? PortName { get; set; } = string.Empty;
 
-  /// <summary>
-  /// Specifies whether to pass the message through to the next chain item, if any.
-  /// </summary>
-  public bool PassThrough { get; set; }
-
 
   public async Task ProcessAsync(Connection connection, IMidiMessage message, Func<IMidiMessage, Task> next)
   {
     if (_device != null && _logger?.IsEnabled(LogLevel.Debug) == true)
     {
-      _logger.LogMidi(_device, message);
+      _logger.LogDebug("Sent to {port}: {message}", _device?.Name, message);
     }
 
     _device?.Send(message);
@@ -35,6 +33,7 @@ public class OutputMidiChainItem : IMidiChainItem
   {
     if (string.IsNullOrEmpty(PortName) && !string.IsNullOrEmpty(connection.DefaultOutputPort))
       PortName = connection.DefaultOutputPort;
+    if (string.IsNullOrEmpty(PortName)) throw new NotSupportedException("No port specified.");
     _device = OutputMidiDevicePool.Instance.Open(PortName);
     _logger = logger;
     return Task.CompletedTask;
@@ -45,5 +44,16 @@ public class OutputMidiChainItem : IMidiChainItem
     if (_device == null) return;
     OutputMidiDevicePool.Instance.Close(_device);
     await Task.CompletedTask;
+  }
+
+  /// <summary>
+  /// Parameters:
+  /// [0]: The name of the device to emit the message on. Enclose in double quotes if name has spaces.
+  ///      If this is not specified, the default output port of the connection is used (if any).
+  /// </summary>
+  /// <param name="tokens"></param>
+  public void FromString(string[] tokens)
+  {
+    PortName = tokens.GetToken(0);
   }
 }

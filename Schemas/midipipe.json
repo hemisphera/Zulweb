@@ -1,0 +1,94 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema#",
+    "title": "Setlist Schema for Zulweb",
+    "type": "object",
+    "properties": {
+        "VirtualPorts": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/VirtualPort"
+            },
+            "description": "A list of virtual ports that will be created when this configuration is loaded."
+        },
+        "Connections": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/Connection"
+            },
+            "description": "The list of connections."
+        }
+    },
+    "definitions": {
+        "VirtualPort": {
+            "type": "object",
+            "properties": {
+                "Name": {
+                    "type": "string",
+                    "description": "The name of the port."
+                },
+                "Loopback": {
+                    "type": "boolean",
+                    "description": "Specifies if the port is a loopback port. This defaults to false."
+                }
+            },
+            "required": [
+                "Name"
+            ]
+        },
+        "Connections": {
+            "type": "object",
+            "properties": {
+                "Name": {
+                    "type": "string",
+                    "description": "A name for the connection. If this is not specified, the connection will use the input port as its name."
+                },
+                "Description": {
+                    "type": "string",
+                    "description": "A description for the connection."
+                },
+                "Enabled": {
+                    "type": "boolean",
+                    "description": "Specifies if the connection is enabled."
+                },
+                "Type": {
+                    "type": "string",
+                    "description": "The type of the input connection.",
+                    "enum": [
+                        "Midi"
+                    ]
+                },
+                "InputPort": {
+                    "type": "string",
+                    "description": "The name or connection string for the port. This setting depends on 'Type'."
+                },
+                "DefaultOutputPort": {
+                    "type": "string",
+                    "description": "The name of the default MIDI output port for this connection."
+                },
+                "Chains": {
+                    "type": "array",
+                    "description": "The list of chains to execute on each message received on the input port.",
+                    "items": {
+                        "$ref": "#/definitions/Chain"
+                    }
+                }
+            }
+        },
+        "Chain": {
+            "type": "object",
+            "properties": {
+                "Enabled": {
+                    "type": "boolean",
+                    "description": "Specifies if the chain is enabled."
+                },
+                "Items": {
+                    "type": "array",
+                    "description": "A list of instructions to execute. See the documentation for more information about instructions.",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

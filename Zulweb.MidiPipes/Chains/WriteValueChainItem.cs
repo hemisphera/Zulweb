@@ -3,6 +3,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Zulweb.MidiPipes.Chains;
 
+/// <summary>
+/// Takes a value from the MIDI message and writes it the internal variable storage.
+/// </summary>
 public class WriteValueChainItem : IMidiChainItem
 {
   public string VariableName { get; set; } = string.Empty;
@@ -40,5 +43,17 @@ public class WriteValueChainItem : IMidiChainItem
   public Task Deinitialize()
   {
     return Task.CompletedTask;
+  }
+
+  /// <summary>
+  /// Parameters:
+  /// [0]: The name of the variable. This is required.
+  /// [1]: The property of the MIDI message where to get the value from. Can be "Command", "Channel", "Data1", "Data2"
+  /// </summary>
+  /// <param name="tokens"></param>
+  public void FromString(string[] tokens)
+  {
+    VariableName = tokens.GetToken(0);
+    Type = tokens.GetEnumToken<ValueType>(1);
   }
 }

@@ -4,6 +4,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Zulweb.MidiPipes.Chains;
 
+/// <summary>
+/// Modifies the value of a MIDI message.
+/// </summary>
 public class ModifyChainItem : IMidiChainItem
 {
   public ValueType Type { get; set; }
@@ -61,5 +64,21 @@ public class ModifyChainItem : IMidiChainItem
   public Task Deinitialize()
   {
     return Task.CompletedTask;
+  }
+
+  /// <summary>
+  /// Parameters:
+  /// [0]: The type of value to modify. Can be "Command", "Channel", "Data1", "Data2"
+  /// [1]: modification expression. +1, -4, *2, /6 etc.
+  /// [2]: A minimum value. After applying the expression, values below this will truncate to this. Defaults to 0.
+  /// [3]: A maximum value. After applying the expression, values above this will truncate to this. Defaults to 127.
+  /// </summary>
+  /// <param name="tokens"></param>
+  public void FromString(string[] tokens)
+  {
+    Type = tokens.GetEnumToken<ValueType>(0);
+    Expression = tokens.GetToken(1);
+    MinValue = tokens.GetIntToken(2);
+    MaxValue = tokens.GetIntToken(3, 127);
   }
 }

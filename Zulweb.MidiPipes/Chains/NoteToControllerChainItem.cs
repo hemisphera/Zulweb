@@ -4,6 +4,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Zulweb.MidiPipes.Chains;
 
+/// <summary>
+/// Converts a note to a controller message. Applies only to messages of type 'NoteOn'.
+/// </summary>
 public class NoteToControllerChainItem : IMidiChainItem
 {
   /// <summary>
@@ -25,6 +28,7 @@ public class NoteToControllerChainItem : IMidiChainItem
   public async Task ProcessAsync(Connection connection, IMidiMessage message, Func<IMidiMessage, Task> next)
   {
     if (message is not ChannelMessage cm) return;
+    if (cm.Command != ChannelCommand.NoteOn) return;
 
     var value = 0;
     switch (Value)
@@ -49,5 +53,21 @@ public class NoteToControllerChainItem : IMidiChainItem
   public Task Deinitialize()
   {
     return Task.CompletedTask;
+  }
+
+  /// <summary>
+  /// Parameters:
+  /// [0]: How the value of the controller is calculated.
+  ///      'NoteNumber': use the note number as value.
+  ///      'Velocity': use the notes velocity as value.
+  /// [1]: The CC number.
+  /// [2]: The MIDI channel to emit the CC message on. Use '*' to use the original value.
+  /// </summary>
+  /// <param name="tokens"></param>
+  public void FromString(string[] tokens)
+  {
+    Value = tokens.GetEnumToken<NoteToCcValueType>(0);
+    ControllerNumber = tokens.GetIntToken(1);
+    Channel = tokens.GetIntTokenOrNull(2);
   }
 }

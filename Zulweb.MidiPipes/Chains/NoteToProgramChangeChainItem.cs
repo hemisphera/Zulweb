@@ -4,6 +4,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Zulweb.MidiPipes.Chains;
 
+/// <summary>
+/// Converts a note to a program change message.
+/// </summary>
 public class NoteToProgramChangeChainItem : IMidiChainItem
 {
   /// <summary>
@@ -47,5 +50,19 @@ public class NoteToProgramChangeChainItem : IMidiChainItem
   public Task Deinitialize()
   {
     return Task.CompletedTask;
+  }
+
+  /// <summary>
+  /// Parameters:
+  /// [0]: How the value of the program is calculated.
+  ///      'NoteNumber': use the note number as value.
+  ///      'Velocity': use the notes velocity as value.
+  /// [1]: The MIDI channel to emit the CC message on. Use '*' to use the original value.
+  /// </summary>
+  /// <param name="tokens"></param>
+  public void FromString(string[] tokens)
+  {
+    Value = tokens.GetEnumToken<NoteToCcValueType>(0);
+    Channel = tokens.GetIntTokenOrNull(1);
   }
 }

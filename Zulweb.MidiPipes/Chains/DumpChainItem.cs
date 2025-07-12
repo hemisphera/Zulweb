@@ -4,6 +4,9 @@ using Zulweb.MidiPipes.Inputs;
 
 namespace Zulweb.MidiPipes.Chains;
 
+/// <summary>
+/// Dumps the MIDI message to the log output.
+/// </summary>
 public class DumpChainItem : IMidiChainItem
 {
   private ILogger? _logger;
@@ -24,5 +27,14 @@ public class DumpChainItem : IMidiChainItem
   {
     _logger = null;
     return Task.CompletedTask;
+  }
+
+  /// <summary>
+  /// Parameters:
+  /// none
+  /// </summary>
+  /// <param name="tokens"></param>
+  public void FromString(string[] tokens)
+  {
   }
 }
