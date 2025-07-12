@@ -25,7 +25,8 @@ public sealed class UdpPackageSender : IPackageSender, IDisposable
         await Task.Delay(TimeSpan.FromSeconds(10), token);
         var v = _packageCounter;
         _packageCounter = 0;
-        logger.LogDebug("{PackageCounter} packages sent.", v);
+        if (v > 0)
+          logger.LogDebug("{PackageCounter} packages sent.", v);
       }
     });
   }
