@@ -6,7 +6,7 @@ namespace Zulweb.MidiPipes.Chains;
 /// <summary>
 /// Delays the chain execution for the specified number of milliseconds.
 /// </summary>
-public class DelayMidiChainItem : IMidiChainItem
+public class DelayChainItem : IMidiChainItem
 {
   public int Milliseconds { get; set; }
 

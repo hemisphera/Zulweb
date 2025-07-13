@@ -7,7 +7,7 @@ namespace Zulweb.MidiPipes.Chains;
 /// <summary>
 /// Creates a new MIDI message. Allows reuse of original message data.
 /// </summary>
-public class MessageMidiChainItem : IMidiChainItem
+public class MessageChainItem : IMidiChainItem
 {
   public ChannelCommand? Command { get; set; }
 

@@ -25,6 +25,9 @@ internal static class ChainItemFactory
       .GetTypes()
       .Where(t => t.GetInterfaces().Contains(typeof(IMidiChainItem)))
       .ToArray();
-    return allTypes.First(t => t.Name.Equals(arg + "ChainItem", StringComparison.OrdinalIgnoreCase));
+    var foundType = allTypes.FirstOrDefault(t => t.Name.Equals(arg + "ChainItem", StringComparison.OrdinalIgnoreCase));
+    if (foundType == null)
+      throw new Exception($"Unable to find type for {arg}.");
+    return foundType;
   }
 }
