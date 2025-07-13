@@ -1,18 +1,10 @@
-﻿using Zulweb.Infrastructure;
-
-namespace Zulweb.Models;
+﻿namespace Zulweb.Models;
 
 public class LoadedSetlistItem
 {
   private readonly SetlistItem _item;
 
-  public string RegionName
-  {
-    get => _item.RegionName ?? string.Empty;
-    set => _item.RegionName = value;
-  }
-
-  public string? ReaperRegionName { get; set; }
+  public string RegionName { get; }
 
   public bool Disabled
   {
@@ -32,11 +24,11 @@ public class LoadedSetlistItem
   public TimeSpan Length => End - Start;
 
 
-  public LoadedSetlistItem(ReaperRegion? reaperRegion, SetlistItem item)
+  public LoadedSetlistItem(ReaperRegion reaperRegion, SetlistItem item)
   {
     _item = item;
-    ReaperRegionName = reaperRegion?.Name;
-    Start = reaperRegion?.Start ?? TimeSpan.Zero;
-    End = reaperRegion?.End ?? TimeSpan.Zero;
+    RegionName = reaperRegion.Name;
+    Start = reaperRegion.Start;
+    End = reaperRegion.End;
   }
 }

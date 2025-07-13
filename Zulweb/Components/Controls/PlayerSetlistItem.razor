@@ -87,8 +87,8 @@
                 Start = Item.Start
             }
         };
-        if (!string.IsNullOrEmpty(Item.ReaperRegionName))
-            result.AddRange(await Reaper.GetRegionMarkers(Item.ReaperRegionName));
+        if (!string.IsNullOrEmpty(Item.RegionName))
+            result.AddRange(await Reaper.GetRegionMarkers(Item.RegionName));
         return result.ToArray();
     }
 
@@ -120,7 +120,7 @@
 
     private async Task PlayRegion()
     {
-        var name = Item?.ReaperRegionName;
+        var name = Item?.RegionName;
         if (string.IsNullOrEmpty(name)) return;
         if (Reaper.CurrentRegion?.Name.Equals(name, StringComparison.OrdinalIgnoreCase) != true)
             await Reaper.GoToRegion(name);

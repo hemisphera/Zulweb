@@ -39,9 +39,14 @@ public class SetlistController
     var setlistItems = _setlist?.Items.ToArray() ?? [];
     foreach (var item in setlistItems)
     {
-      yield return new LoadedSetlistItem(
-        _reaper.GetRegionByName(item.RegionName),
-        item);
+      var region = _reaper.GetRegionByName(item.RegionName);
+      if (region == null)
+      {
+        _logger.LogWarning("Unable to find REAPER region '{name}'", item.RegionName);
+        continue;
+      }
+
+      yield return new LoadedSetlistItem(region, item);
     }
   }
 
@@ -49,7 +54,7 @@ public class SetlistController
   {
     var all = await BuildAll().ToListAsync();
     Items = all
-      .Where(i => !i.Disabled && !string.IsNullOrEmpty(i.ReaperRegionName))
+      .Where(i => !i.Disabled && !string.IsNullOrEmpty(i.RegionName))
       .OrderBy(i => i.Sequence)
       .ToArray();
   }
