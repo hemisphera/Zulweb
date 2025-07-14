@@ -52,6 +52,7 @@ public class SetlistController
 
   public async Task ResetSetlist()
   {
+    _reaper.Reconnect();
     var all = await BuildAll().ToListAsync();
     Items = all
       .Where(i => !i.Disabled && !string.IsNullOrEmpty(i.RegionName))

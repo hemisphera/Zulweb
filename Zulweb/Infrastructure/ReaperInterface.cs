@@ -3,7 +3,6 @@ using System.Net;
 using Hsp.Osc;
 using Zulweb.Infrastructure.EventArgs;
 using Zulweb.Models;
-using Zulweb.Settings;
 
 namespace Zulweb.Infrastructure;
 
@@ -13,6 +12,7 @@ public sealed class ReaperInterface : IAsyncDisposable
   private ReaperRegion[] _regions = [];
   private ReaperMarker[] _markers = [];
   private double _time;
+  private Settings.Reaper _lastSettings;
 
   public ResourceLock RegionLock { get; }
   public ResourceLock MarkerLock { get; }
@@ -200,10 +200,11 @@ public sealed class ReaperInterface : IAsyncDisposable
     return _sender ?? throw new InvalidOperationException("Sender is not connected.");
   }
 
-
-  public async Task ConnectAsync(Reaper settings)
+  public async Task ConnectAsync(Settings.Reaper settings)
   {
     if (Connected) throw new InvalidOperationException("REAPER is already connected.");
+
+    _lastSettings = settings;
 
     _regions = Enumerable.Range(0, settings.RegionCount).Select(i => new ReaperRegion(i + 1)).ToArray();
     _markers = Enumerable.Range(0, settings.MarkerCount).Select(i => new ReaperMarker(i + 1)).ToArray();
@@ -266,10 +267,20 @@ public sealed class ReaperInterface : IAsyncDisposable
 
   public async Task RefreshAll()
   {
+    _logger.LogInformation("Sent refresh all message");
     await EnsureClient().SendMessageAsync(new Message("/action").PushAtom(41743)); // refresh control surfaces
     RegionLock.Touch();
     MarkerLock.Touch();
     await Task.WhenAll(RegionLock.Wait(), MarkerLock.Wait());
+    foreach (var region in _regions.Where(r => r.Exists))
+    {
+      _logger.LogInformation("Got region: {region}", region);
+    }
+
+    foreach (var marker in _markers.Where(r => r.Exists))
+    {
+      _logger.LogInformation("Got marker: {marker}", marker);
+    }
   }
 
 
@@ -295,5 +306,17 @@ public sealed class ReaperInterface : IAsyncDisposable
   public async Task GoToTime(TimeSpan time)
   {
     await EnsureClient().SendMessageAsync(new Message("/time").PushAtom((float)time.TotalSeconds));
+  }
+
+  public async Task Reconnect()
+  {
+    ArgumentNullException.ThrowIfNull(_lastSettings);
+
+    if (Connected)
+    {
+      await DisconnectAsync();
+    }
+
+    await ConnectAsync(_lastSettings);
   }
 }
