@@ -53,30 +53,33 @@ public sealed class LedStripDispatcher : BackgroundService
 
   public override async Task StartAsync(CancellationToken cancellationToken)
   {
-    CloseMidiDevice();
-    OpenMidiDevice();
+    await CloseMidiDevice();
+    await OpenMidiDevice();
     await base.StartAsync(cancellationToken);
   }
 
   public override async Task StopAsync(CancellationToken cancellationToken)
   {
-    CloseMidiDevice();
+    await CloseMidiDevice();
     await base.StopAsync(cancellationToken);
   }
 
-  private void OpenMidiDevice()
+  private async Task OpenMidiDevice()
   {
     if (string.IsNullOrEmpty(MidiDeviceName)) return;
 
     _logger.LogInformation("Creating virtual LED MIDI port {name}", MidiDeviceName);
     _virtualPort = VirtualMidiPort.Create(MidiDeviceName);
 
+    _logger.LogInformation("Waiting for LED MIDI port {name}", MidiDeviceName);
+    await Task.Delay(TimeSpan.FromSeconds(2));
+
     _logger.LogInformation("Opening MIDI device '{MidiDeviceName}'", MidiDeviceName);
     _device = InputMidiDevicePool.Instance.Open(MidiDeviceName);
     _device.MessageReceived += MidiMessageHandler;
   }
 
-  private void CloseMidiDevice()
+  private async Task CloseMidiDevice()
   {
     if (_device == null) return;
     _logger.LogInformation("Closing MIDI device '{MidiDeviceName}'", MidiDeviceName);
@@ -85,5 +88,7 @@ public sealed class LedStripDispatcher : BackgroundService
 
     _logger.LogInformation("Removing virtual LED MIDI port {name}", MidiDeviceName);
     _virtualPort?.Dispose();
+
+    await Task.CompletedTask;
   }
 }
