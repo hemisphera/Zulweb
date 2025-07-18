@@ -35,6 +35,7 @@ public sealed class LedStripDispatcher : BackgroundService
 
   private void MidiMessageHandler(object? sender, IMidiMessage e)
   {
+    _logger.LogDebug(e.ToHexString());
     foreach (var strip in Strips)
     {
       strip.ProcessMessage(e);
