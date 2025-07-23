@@ -20,8 +20,10 @@ internal static class Installer
     builder.Services.Configure<Settings.Setlist>(builder.Configuration.GetSection(nameof(Settings.Setlist)));
     builder.Services.Configure<Settings.MidiPipes>(builder.Configuration.GetSection(nameof(Settings.MidiPipes)));
     builder.Services.Configure<LedStripSettings>(builder.Configuration.GetSection(nameof(LedStripSettings)));
+    builder.Services.Configure<Settings.AbletonLink>(builder.Configuration.GetSection(nameof(Settings.AbletonLink)));
 
     builder.Services.AddHostedService<LedStripDispatcher>();
+    builder.Services.AddHostedService<ClockProvider>();
   }
 
   public static async Task InitializeZulweb(this WebApplication app)
